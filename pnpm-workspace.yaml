@@ -1,0 +1,9 @@
+packages:
+  - .
+allowBuilds:
+  '@fortawesome/fontawesome-common-types': false
+  '@fortawesome/free-regular-svg-icons': false
+  '@fortawesome/free-solid-svg-icons': false
+  sharp: true
+  esbuild: true
+  unrs-resolver: true
