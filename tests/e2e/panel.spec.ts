@@ -1,113 +1,138 @@
 import { test, expect } from './fixtures';
-test('RTL viewer displays Persian numerals and submits canonical values', async ({ page }) => {
-  await page.goto('/viewer');
-  await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
-  await page.getByLabel('نام و نام خانوادگی').fill('کاربر نمونه');
-  await page.getByLabel('ایمیل', { exact: true }).fill('test@example.com');
-  await page.getByLabel('شماره موبایل').fill('09123456789');
-  await expect(page.getByLabel('شماره موبایل')).toHaveValue('۰۹۱۲۳۴۵۶۷۸۹');
-  await page.getByLabel('کد ملی').fill('1234567891');
-  await page.getByLabel('بودجه پیشنهادی (تومان)').fill('120000');
-  await expect(page.getByLabel('بودجه پیشنهادی (تومان)')).toHaveValue('۱۲۰٬۰۰۰');
-  await page.getByLabel('صحت اطلاعات واردشده را تأیید می‌کنم').check();
-  await page.getByRole('button', { name: 'ثبت درخواست', exact: true }).click();
-  await expect(page.getByText('اعتبارسنجی موفق بود')).toBeVisible();
-  await expect(page.locator('pre')).toContainText('09123456789');
-  await expect(page.locator('pre')).toContainText('120000');
-});
-test('invalid mobile prevents submission', async ({ page }) => {
-  await page.goto('/viewer');
-  await page.getByLabel('شماره موبایل').fill('123');
-  await page.getByRole('button', { name: 'ثبت درخواست', exact: true }).click();
-  await expect(page.getByText('شماره موبایل باید ۱۱ رقم و با ۰۹ شروع شود')).toBeVisible();
-  await expect(page.getByText('اعتبارسنجی موفق بود')).not.toBeVisible();
-});
-test('designer loads Persian palette', async ({ page }) => {
-  await page.goto('/designer');
-  await expect(page.getByText('ورودی متن', { exact: true }).first()).toBeVisible({
-    timeout: 45000,
-  });
-});
 
-test('designer saves a named form that the viewer can reopen', async ({ page }) => {
-  await page.goto('/designer');
-  await expect(page.getByText('ورودی متن', { exact: true }).first()).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'ثبت درخواست همکاری' })).toBeVisible();
-  await page.getByLabel('نام ذخیره فرم').fill('فرم آزمایشی');
-  await page.getByRole('button', { name: 'ذخیره فرم', exact: true }).click();
-  await expect(page.getByText('فرم ذخیره شد؛ اکنون در نمایش فرم قابل انتخاب است')).toBeVisible();
-  await page.getByRole('link', { name: 'نمایش فرم', exact: true }).click();
-  await page.getByRole('combobox', { name: 'انتخاب فرم' }).click();
-  await page.getByRole('option', { name: 'فرم آزمایشی', exact: true }).click();
-  await expect(page.getByLabel('شماره موبایل')).toBeVisible();
-  const downloadPromise = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'خروجی JSON' }).click();
-  expect((await downloadPromise).suggestedFilename()).toBe('فرم آزمایشی.json');
-});
-
-test('imported definitions render and read-only mode prevents edits', async ({ page }) => {
-  await page.goto('/viewer');
-  const definition = {
-    form: {
-      key: 'Screen',
-      type: 'Screen',
-      children: [
-        { key: 'testField', type: 'PersianText', props: { label: { value: 'فیلد واردشده' } } },
-      ],
-    },
-    languages: [{ code: 'fa', dialect: 'IR', name: 'فارسی', description: 'فارسی', bidi: 'rtl' }],
-    defaultLanguage: 'fa-IR',
-  };
-  await page.locator('input[type=file]').setInputFiles({
-    name: 'واردشده.json',
-    mimeType: 'application/json',
-    buffer: Buffer.from(JSON.stringify(definition)),
-  });
-  await expect(page.getByLabel('فیلد واردشده')).toBeVisible();
-  await page.getByRole('switch', { name: 'فقط خواندنی' }).check();
-  await expect(page.getByLabel('فیلد واردشده')).toHaveAttribute('readonly', '');
-});
-
-test('mobile shell and viewer fit the viewport', async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/viewer');
-  await expect(page.getByLabel('شماره موبایل')).toBeVisible();
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
-    true,
-  );
-  await page.getByRole('button', { name: 'باز کردن منو' }).click();
-  await expect(page.getByRole('link', { name: 'طراحی فرم' })).toBeVisible();
-});
-
-test('desktop RTL sidebar sits on the right without covering content', async ({ page }) => {
-  await page.setViewportSize({ width: 1440, height: 1000 });
+test('home exposes exactly the two-page horizontal navigation at full width', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/');
-  const navigation = await page.locator('nav .MuiDrawer-paper').boundingBox();
+  const navigation = page.getByRole('navigation', { name: 'منوی اصلی' });
+  await expect(navigation).toBeVisible();
+  await expect(navigation.getByRole('link')).toHaveCount(2);
+  await expect(navigation.getByRole('link', { name: 'خانه' })).toHaveAttribute(
+    'aria-current',
+    'page',
+  );
+  await expect(navigation.getByRole('link', { name: 'فرم‌ها' })).toBeVisible();
+  await expect(page.locator('.MuiDrawer-paper')).toHaveCount(0);
   const main = await page.locator('main').boundingBox();
-  expect(navigation).not.toBeNull();
   expect(main).not.toBeNull();
-  expect(navigation!.x).toBeGreaterThan(1100);
-  expect(main!.x + main!.width).toBeLessThanOrEqual(navigation!.x + 1);
+  expect(main!.x).toBe(0);
+  expect(main!.width).toBe(1440);
 });
 
-test('designer loads Monaco from the application with external requests blocked', async ({
-  page,
-}) => {
+test('forms page sends the create button to the add form page', async ({ page }) => {
+  await page.goto('/forms');
+  await expect(page.getByRole('heading', { level: 1, name: 'فرم‌ها' })).toBeVisible();
+  const createForm = page.getByRole('link', { name: 'ایجاد فرم' });
+  await expect(createForm).toBeVisible();
+  await createForm.click();
+  await expect(page).toHaveURL(/\/forms\/new$/);
+  await expect(page.getByRole('heading', { level: 1, name: 'افزودن فرم' })).toBeVisible();
+  await expect(page.getByLabel('نام فرم')).toBeVisible();
+  await expect(page.getByLabel('کد فرم')).toBeVisible();
+  await expect(page.getByRole('combobox', { name: 'نوع فرم' })).toBeVisible();
+});
+
+test('designer spans the panel width and loads Monaco locally', async ({ page }) => {
+  await page.setViewportSize({ width: 1600, height: 1000 });
   const monacoLoaded = page.waitForResponse(
     (response) =>
       response.url().endsWith('/vendor/monaco/0.55.1/vs/editor/editor.main.js') && response.ok(),
   );
-  await page.goto('/designer');
-  await expect(page.getByText('ورودی متن', { exact: true }).first()).toBeVisible();
-  await monacoLoaded;
-  await page.getByRole('button', { name: 'ویرایش JSON', exact: true }).click();
+  await page.goto('/forms/new');
+  await expect(page.getByText('ورودی متن', { exact: true }).first()).toBeVisible({
+    timeout: 45000,
+  });
+  const main = await page.locator('main').boundingBox();
+  const designer = await page.locator('.engine-host').boundingBox();
+  expect(main).not.toBeNull();
+  expect(designer).not.toBeNull();
+  expect(designer!.x).toBeGreaterThanOrEqual(main!.x);
+  expect(designer!.width).toBeGreaterThan(main!.width * 0.95);
+  expect(designer!.width).toBeGreaterThan(1450);
+  await page.getByRole('button', { name: 'ویرایش JSON' }).click();
   await expect(page.locator('.monaco-editor').first()).toBeVisible();
   await expect(page.locator('.monaco-editor .view-lines').first()).toContainText('Screen');
+  await monacoLoaded;
 });
 
-test('dashboard sends the same-origin resource policy and bundles Persian fonts', async ({
+test('add form metadata is editable and switches the form type', async ({ page }) => {
+  await page.goto('/forms/new');
+  await page.getByLabel('نام فرم').fill('نظرسنجی مشتری');
+  await page.getByLabel('کد فرم').fill('customer-survey');
+  await expect(page.getByLabel('نام فرم')).toHaveValue('نظرسنجی مشتری');
+  await expect(page.getByLabel('کد فرم')).toHaveValue('customer-survey');
+  await expect(page.getByText('customer-survey', { exact: true })).toBeVisible();
+
+  const formType = page.getByRole('combobox', { name: 'نوع فرم' });
+  await expect(formType).toContainText('وب');
+  await formType.click();
+  await page.getByRole('option', { name: 'موبایل' }).click();
+  await expect(formType).toContainText('موبایل');
+});
+
+test('mobile navigation stays accessible and pages never overflow horizontally', async ({
   page,
 }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/forms');
+  await expect(page.getByRole('navigation', { name: 'منوی اصلی' })).toBeHidden();
+  await page.getByRole('button', { name: 'باز کردن منو' }).click();
+  const drawerNavigation = page.getByRole('navigation', { name: 'منوی موبایل' });
+  await expect(drawerNavigation).toBeVisible();
+  await expect(drawerNavigation.getByRole('link', { name: 'خانه' })).toBeVisible();
+  await expect(drawerNavigation.getByRole('link', { name: 'فرم‌ها' })).toBeVisible();
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+  ).toBe(true);
+  await drawerNavigation.getByRole('link', { name: 'فرم‌ها' }).click();
+  await expect(page).toHaveURL(/\/forms$/);
+
+  await page.goto('/forms/new');
+  await expect(page.getByLabel('نام فرم')).toBeVisible();
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+  ).toBe(true);
+});
+
+test('panel theme follows the designer token palette', async ({ page }) => {
+  await page.goto('/forms');
+  const createForm = page.getByRole('link', { name: 'ایجاد فرم' });
+  await expect(createForm).toHaveCSS('background-color', 'rgb(52, 152, 255)');
+  await expect(createForm).toHaveCSS('border-radius', '6px');
+  await expect(page.locator('header')).toHaveCSS('z-index', '10');
+  await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(247, 247, 250)');
+  expect(await page.evaluate(() => getComputedStyle(document.body).fontFamily)).toContain(
+    'Vazirmatn',
+  );
+});
+
+test('header theme button switches the panel and designer together', async ({ page }) => {
+  await page.setViewportSize({ width: 1600, height: 1000 });
+  await page.goto('/forms/new');
+  await expect(page.getByText('ورودی متن', { exact: true }).first()).toBeVisible({
+    timeout: 45000,
+  });
+  const body = page.locator('body');
+  await expect(body).toHaveClass(/rs-theme-light/);
+  await expect(body).toHaveCSS('background-color', 'rgb(247, 247, 250)');
+  await expect(page.locator('header')).toHaveCSS('background-color', 'rgb(255, 255, 255)');
+  const designerButton = page.locator('.engine-host .rs-btn').first();
+  expect(
+    await designerButton.evaluate((element) => getComputedStyle(element).fontFamily),
+  ).toContain('Vazirmatn');
+
+  await page.getByRole('button', { name: 'تغییر به حالت تاریک' }).click();
+  await expect(body).toHaveCSS('background-color', 'rgb(15, 19, 26)');
+  await expect(body).toHaveClass(/rs-theme-dark/);
+  await expect(page.locator('header')).toHaveCSS('background-color', 'rgb(26, 29, 36)');
+  await expect(page.locator('.engine-host')).toHaveCSS('background-color', 'rgb(26, 29, 36)');
+  await expect(page.getByRole('button', { name: 'تغییر به حالت روشن' })).toBeVisible();
+
+  await page.getByRole('button', { name: 'تغییر به حالت روشن' }).click();
+  await expect(body).toHaveCSS('background-color', 'rgb(247, 247, 250)');
+  await expect(body).toHaveClass(/rs-theme-light/);
+});
+
+test('home sends the same-origin resource policy and bundles Persian fonts', async ({ page }) => {
   const response = await page.goto('/');
   expect(response?.headers()['content-security-policy']).toContain("default-src 'self'");
   await page.evaluate(() => document.fonts.ready);

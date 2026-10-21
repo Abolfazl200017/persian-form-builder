@@ -1,106 +1,142 @@
-'use client';
-import Link from 'next/link';
-import { Box, Button, Card, CardContent, Chip, Stack, Typography } from '@mui/material';
-const components = [
-  { title: 'شماره موبایل', text: 'شماره ایران با پیش‌شماره ۰۹' },
-  { title: 'کد ملی', text: 'اعتبارسنجی رقم کنترل' },
-  { title: 'مبلغ فارسی', text: 'جداکننده هزارگان و تبدیل اعداد' },
-  { title: 'تأیید اطلاعات', text: 'پذیرش الزامی پیش از ارسال' },
+import type { Metadata } from 'next';
+import { Box, Card, CardContent, Stack, Typography } from '@mui/material';
+import { LinkButton } from '@/components/link-button';
+import { CreateFormButton } from '@/features/forms/ui/create-form-button';
+
+export const metadata: Metadata = { title: 'خانه' };
+
+const steps = [
+  { title: 'اطلاعات فرم را وارد کنید', text: 'نام، کد و نوع فرم را تعیین کنید.' },
+  { title: 'با طراح بصری بسازید', text: 'مؤلفه‌ها را بکشید و ویژگی‌ها را تنظیم کنید.' },
+  { title: 'ساختار را آماده کنید', text: 'تعریف فرم به‌صورت JSON قابل انتقال است.' },
 ];
-export default function Dashboard() {
+
+const capabilities = [
+  {
+    title: 'طراح بصری',
+    text: 'کشیدن و رهاکردن مؤلفه‌ها، ویرایش خواص و پیش‌نمایش زنده در یک صفحه.',
+  },
+  {
+    title: 'مؤلفه‌های فارسی',
+    text: 'موبایل ایران، کد ملی، مبلغ فارسی و قواعد اعتبارسنجی بومی.',
+  },
+  {
+    title: 'راست‌به‌چپ',
+    text: 'چیدمان، تایپوگرافی و رفتار مؤلفه‌ها هماهنگ با زبان فارسی.',
+  },
+];
+
+export default function HomePage() {
   return (
-    <Stack spacing={4}>
-      <Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
-        <Box>
-          <Typography variant="h4" gutterBottom>
-            فضای کار فرم‌ها
-          </Typography>
-          <Typography color="text.secondary">
-            از طراحی تا نمایش؛ همه چیز در یک پنل فارسی.
-          </Typography>
-        </Box>
-        <Chip label="نسخه پایه" color="primary" variant="outlined" />
-      </Stack>
-      <Card sx={{ background: 'linear-gradient(115deg, #183e34, #2c705a)', color: '#fff' }}>
-        <CardContent sx={{ p: { xs: 3, md: 5 } }}>
-          <Typography variant="overline" sx={{ opacity: 0.7 }}>
-            FORMENGINE × MATERIAL UI
-          </Typography>
-          <Typography variant="h4" sx={{ mt: 1, mb: 2 }}>
-            فرم بعدی شما، از همین‌جا شروع می‌شود
-          </Typography>
-          <Typography sx={{ opacity: 0.8, mb: 3, maxWidth: 650 }}>
-            فرم‌ها را بصری طراحی کنید، با مؤلفه‌های اختصاصی توسعه دهید و نتیجه را در محیط راست‌به‌چپ
-            آزمایش کنید.
-          </Typography>
-          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-            <Button
-              component={Link}
-              href="/designer"
-              variant="contained"
-              sx={{ bgcolor: '#fff', color: '#183e34', '&:hover': { bgcolor: '#e5eee9' } }}
-            >
-              شروع طراحی فرم
-            </Button>
-            <Button
-              component={Link}
-              href="/viewer"
-              variant="outlined"
-              sx={{ color: '#fff', borderColor: '#91b1a5' }}
-            >
-              مشاهده فرم نمونه
-            </Button>
-          </Stack>
-        </CardContent>
-      </Card>
-      <Box
-        sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, 1fr)' }, gap: 2 }}
-      >
-        {[
-          { value: '۰۸', label: 'مؤلفه قابل استفاده' },
-          { value: 'فارسی', label: 'رابط و فرم راست‌به‌چپ' },
-          { value: 'JSON', label: 'ساختار قابل انتقال' },
-        ].map((item) => (
-          <Card key={item.label}>
-            <CardContent>
-              <Typography variant="h4" color="primary">
-                {item.value}
-              </Typography>
-              <Typography color="text.secondary" sx={{ mt: 1 }}>
-                {item.label}
-              </Typography>
-            </CardContent>
-          </Card>
-        ))}
-      </Box>
-      <Box>
-        <Typography variant="h5" gutterBottom>
-          مؤلفه‌های اختصاصی
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          یک ثبت مشترک برای طراح و نمایشگر؛ ساخته‌شده با MUI 9.
-        </Typography>
-      </Box>
-      <Box
+    <Stack spacing={{ xs: 4, md: 5 }}>
+      <Card
         sx={{
-          display: 'grid',
-          gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', xl: 'repeat(4, 1fr)' },
-          gap: 2,
+          backgroundImage:
+            'linear-gradient(135deg, rgba(52, 152, 255, 0.10) 0%, rgba(52, 152, 255, 0) 62%)',
         }}
       >
-        {components.map((item, i) => (
-          <Card key={item.title}>
+        <CardContent
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: { xs: '1fr', lg: 'minmax(0, 1.35fr) minmax(300px, 0.65fr)' },
+            alignItems: 'center',
+            gap: { xs: 3, lg: 5 },
+            p: { xs: 3, md: 5 },
+            '&:last-child': { pb: { xs: 3, md: 5 } },
+          }}
+        >
+          <Stack spacing={2} sx={{ minWidth: 0 }}>
+            <Typography variant="overline" color="primary">
+              پنل مدیریت فرم‌های فارسی
+            </Typography>
+            <Typography
+              variant="h4"
+              component="h1"
+              sx={{ fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2rem' }, maxWidth: 620 }}
+            >
+              فرم بسازید، بدون درگیری با کد
+            </Typography>
+            <Typography color="text.secondary" sx={{ maxWidth: 560, fontSize: '0.9375rem' }}>
+              طراح بصری FormEngine را در کنار مؤلفه‌های فارسی و راست‌به‌چپ دارید؛ از ساخت فرم تا
+              آماده‌سازی ساختار JSON.
+            </Typography>
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} sx={{ pt: 1 }}>
+              <CreateFormButton />
+              <LinkButton href="/forms" variant="outlined">
+                مشاهده فرم‌ها
+              </LinkButton>
+            </Stack>
+          </Stack>
+
+          <Card sx={{ bgcolor: 'background.paper' }}>
             <CardContent>
-              <Typography variant="overline" color="secondary">
-                {['۰۱', '۰۲', '۰۳', '۰۴'][i]}
+              <Typography variant="subtitle1" component="h2" sx={{ mb: 2 }}>
+                شروع در سه گام
               </Typography>
-              <Typography sx={{ fontWeight: 700, my: 1 }}>{item.title}</Typography>
-              <Typography variant="body2" color="text.secondary">
-                {item.text}
-              </Typography>
+              <Stack spacing={2}>
+                {steps.map((step, index) => (
+                  <Stack key={step.title} direction="row" spacing={1.5}>
+                    <Box
+                      aria-hidden
+                      sx={{
+                        display: 'grid',
+                        placeItems: 'center',
+                        flexShrink: 0,
+                        width: 28,
+                        height: 28,
+                        borderRadius: '6px',
+                        bgcolor: 'action.selected',
+                        color: 'primary.main',
+                        fontSize: '0.75rem',
+                        fontWeight: 700,
+                      }}
+                    >
+                      {['۰۱', '۰۲', '۰۳'][index]}
+                    </Box>
+                    <Box>
+                      <Typography sx={{ fontSize: '0.875rem', fontWeight: 600 }}>
+                        {step.title}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {step.text}
+                      </Typography>
+                    </Box>
+                  </Stack>
+                ))}
+              </Stack>
             </CardContent>
           </Card>
-        ))}
+        </CardContent>
+      </Card>
+
+      <Box>
+        <Typography variant="h5" component="h2">
+          امکانات پنل
+        </Typography>
+        <Typography color="text.secondary" sx={{ mt: 0.5, mb: 2.5 }}>
+          هر چیزی که برای ساخت و نگهداری فرم‌های فارسی لازم دارید، در یک فضای کار.
+        </Typography>
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))', lg: 'repeat(3, minmax(0, 1fr))' },
+            gap: 2,
+          }}
+        >
+          {capabilities.map((item, index) => (
+            <Card key={item.title}>
+              <CardContent>
+                <Typography variant="overline" color="primary">
+                  {['۰۱', '۰۲', '۰۳'][index]}
+                </Typography>
+                <Typography sx={{ my: 0.75, fontWeight: 600 }}>{item.title}</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {item.text}
+                </Typography>
+              </CardContent>
+            </Card>
+          ))}
+        </Box>
       </Box>
     </Stack>
   );

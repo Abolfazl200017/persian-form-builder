@@ -1,6 +1,6 @@
 # Persian Form Panel
 
-Next.js **16.4.0**, App Router, React 19, TypeScript, **MUI 9.5.0**, FormEngine **11.1.0**, and pnpm. Persian-first responsive administration shell with a visual designer and JSON-driven viewer.
+Next.js **16.4.0**, App Router, React 19, TypeScript, **MUI 9.5.0**, FormEngine **11.1.0**, and pnpm. A Persian-first RTL administration panel with a horizontal navigation, Home and Forms pages, and an Add Form page where the FormEngine designer runs at full panel width.
 
 ## Start
 
@@ -14,7 +14,7 @@ cp .env.example .env.local
 pnpm dev
 ```
 
-Open http://localhost:3000. `/designer` edits forms; `/viewer` renders and validates them. The viewer and sample form work independently of the designer license. The designer needs a vendor-issued commercial license for licensed use. The key is intentionally public and must be bound to your intended domains. Follow the vendor's localhost/HTTPS requirements.
+Open http://localhost:3000. `/` is Home, `/forms` is the Forms page, and `/forms/new` adds a form: metadata fields plus the embedded designer. The designer needs a vendor-issued commercial license for licensed use. The key is intentionally public and must be bound to your intended domains. Without a key, FormEngine runs in unlicensed mode according to the vendor's own rules. Follow the vendor's localhost/HTTPS requirements and EULA.
 
 ```sh
 pnpm typecheck
@@ -26,13 +26,22 @@ pnpm exec playwright install chromium
 pnpm test:e2e
 ```
 
+If Playwright's browser download is unavailable, reuse an installed browser instead: `PLAYWRIGHT_CHANNEL=chrome pnpm test:e2e` (or `msedge`).
+
+## Layout and theme
+
+- The sidebar was replaced with a horizontal top navigation, so the main content and the designer use the full panel width. On mobile the same navigation opens in a drawer; the menu contains exactly **Home** (خانه) and **Forms** (فرم‌ها). The header sits at `z-index: 10`.
+- The MUI theme mirrors FormEngine's RSuite light and dark themes: primary `#3498ff` / `#34c3ff`, green accent `#37ab3c` / `#58b15b`, canvas `#f7f7fa` / `#0f131a`, white and `#1a1d24` surfaces, matching borders, 6px radii, 14px type, compact 36px controls and flat surfaces. A single toggle button in the header switches the panel and the embedded designer together. The designer chrome uses the panel's Vazirmatn typeface, including its portals; Monaco keeps its code font.
+- All runtime assets are local; see the asset sections below.
+
 ## Integration decisions
 
 - MUI's Next.js App Router cache provider collects Emotion styles during streaming SSR. HTML `lang="fa"` / `dir="rtl"`, MUI `direction: 'rtl'`, and the RTL Stylis plugin cover document layout, component styles, and portals. Vazirmatn is bundled locally through Fontsource; no Google Fonts request is needed.
-- FormEngine does not support SSR. Entire designer/viewer workspaces are dynamically imported with `ssr: false` from a client boundary. The panel shell remains independently renderable.
+- FormEngine does not support SSR. The designer runtime is dynamically imported with `ssr: false` from a client boundary. The panel shell and the Home and Forms pages remain independently renderable.
 - The upstream `@react-form-builder/components-material-ui@11.1.0` declares `@mui/material: ^7.3.2` and MUI X 7. This project deliberately uses the documented `define()` API to build a shared **MUI 9 adapter registry**, rather than forcing unsupported peer versions or loading two MUI majors. Existing forms using upstream `MuiTextField` and other `Mui*` names must be migrated to this registry's types before use.
-- The administration panel and all registered form controls use MUI 9. **The embedded FormEngine designer chrome uses RSuite internally.** Its official Persian translation and RSuite locale are loaded via the `i18n` API. Making the vendor's entire editor chrome MUI requires a separate supported vendor customization effort; changing the form registry does not replace that chrome.
-- One metadata registry feeds both `BuilderView` and `createView`, so custom types round-trip between editing and rendering. Stable type names are part of your stored schema contract.
+- The administration panel uses MUI 9. **The embedded FormEngine designer chrome uses RSuite internally.** Its official Persian translation and RSuite locale are loaded via the `i18n` API. Making the vendor's entire editor chrome MUI requires a separate supported vendor customization effort; changing the form registry does not replace that chrome.
+- One metadata registry feeds the designer, so custom types round-trip correctly. Stable type names are part of your stored schema contract.
+- The Add Form page is a drafting surface: Name, Code, Form Type (`mobile` | `web`) and the designer, with no save action or data table yet. The designer is backed by `MemoryFormRepository`, so drafts stay in page memory and browser storage is untouched. `LocalFormRepository` remains the browser-storage adapter for when persistence is specified. `persistFormName` is off, so the designer does not write its form name to localStorage either.
 
 ## Components
 
@@ -51,25 +60,25 @@ Numeric fields accept English, Persian, and Arabic digits and keep their engine 
 
 ## Structure and extension
 
-- `src/app`: routes, global layout, providers, and error pages.
-- `src/theme`: shared MUI tokens and component defaults.
-- `src/components`: responsive panel shell.
-- `src/features/forms/domain`: sample schema, form boundary guard, validation, and repository interface. No engine or UI dependency.
-- `src/features/forms/infrastructure`: browser storage implementation.
-- `src/features/forms/engine`: component adapters, registry, Persian localization, validators, and designer storage bridge.
-- `src/features/forms/ui`: client workspaces and error boundary.
+- `src/app`: routes (`/`, `/forms`, `/forms/new`), layout, providers, error pages, and the app icon.
+- `src/components`: horizontal app shell, link button, and inline icons.
+- `src/theme`: shared MUI tokens and component defaults aligned with RSuite.
+- `src/features/forms/domain`: starter document, sample schema, form boundary guard, validation, and repository interface. No engine or UI dependency.
+- `src/features/forms/infrastructure`: browser-storage and session-only repositories.
+- `src/features/forms/engine`: component adapters, registry, Persian localization, validators, Monaco setup, and designer storage bridge.
+- `src/features/forms/ui`: Add Form view, metadata fields, designer wrapper/runtime, and the Create Form button.
 - `src/lib/digits.ts`: reusable numeral normalization.
 - `tests`: domain/storage unit tests and browser integration tests.
 
 To add a component: implement a controlled MUI control, expose primitive `onChange(value)` rather than a DOM event, read validation with `useErrorMessage()`, describe value/events/editable properties using `define()`, and add it to the shared registry. Add a validation rule and sample schema usage where appropriate. Container controls forward their refs so designer drag-and-drop can target the DOM node.
 
-The `FormRepository` interface keeps persistence separate from FormEngine. Replace `LocalFormRepository` with an HTTP adapter when connecting your backend; pass it to `createDesignerStorage`. The demo stores named definitions in this browser, not on a server. It is not multi-user storage. Browser storage can fail or fill up; the UI surfaces save failures. The built-in sample remains available as a fallback.
+The `FormRepository` interface keeps persistence separate from FormEngine. The session-only repository is used today; swap in `LocalFormRepository` or an HTTP adapter, and pass it to `createDesignerStorage`, when save and the Forms table are specified. The demo stores nothing on a server and is not multi-user storage.
 
 ## Submission and production scope
 
-The viewer's `submit` custom action runs after FormEngine's `validate` action with `failOnError: true`. It displays the normalized payload locally. **No API request or backend persistence is implemented.** Replace that action with your API client, loading/error states, and server-side validation. Add authentication and authorization before exposing real business forms. No auth backend was specified or invented.
+The panel does not submit or persist forms yet. The designer's preview submit action is intentionally a no-op, and the Forms page only provides the Create Form entry point. **No API request or backend persistence is implemented.** Add the save flow, authentication, authorization, loading/error states, and server-side validation before exposing real business forms. No auth backend was specified or invented.
 
-The importer checks size, basic node structure, unique keys, and tree complexity. This is intentionally a structural guard, not full FormEngine JSON-schema validation and not an expression sandbox. FormEngine definitions may contain executable expressions/actions: import only trusted definitions. Unknown component types need a matching registry entry. This guard preserves other engine metadata instead of silently stripping it.
+Repository writes run `parseFormDocument`, which checks size, basic node structure, unique keys, and tree complexity. This is intentionally a structural guard, not full FormEngine JSON-schema validation and not an expression sandbox. FormEngine definitions may contain executable expressions/actions: only load trusted definitions. Unknown component types need a matching registry entry. The guard preserves other engine metadata instead of silently stripping it.
 
 ## References
 
@@ -86,23 +95,22 @@ Dependency versions and APIs were checked when this project was generated. The l
 
 ## Verified delivery
 
-- Production build and strict TypeScript check passed.
-- ESLint passed; pnpm reports no peer dependency issues.
-- Six unit tests passed.
-- Nine Chromium integration tests passed: numeral round-trip, failed validation, Persian palette, designer save/viewer reopen/export, JSON import/read-only mode, mobile layout, right-hand desktop sidebar, self-hosted Monaco, and local fonts/resource policy. Every browser test blocks and audits external requests.
-- Dashboard, viewer, and designer were rendered and visually inspected.
+- Production build, strict TypeScript check, and ESLint passed.
+- Seven unit tests passed, including session-only draft storage.
+- Eight Chromium integration tests passed with external traffic blocked and audited: the two-page horizontal navigation at full width, Forms → Create Form → Add Form, the designer spanning the panel width with locally served Monaco, metadata editing and type switching, mobile drawer navigation without horizontal overflow, designer-aligned theme tokens and header z-index, the header theme button switching the panel and designer together with the shared typeface, and the same-origin CSP with bundled Vazirmatn.
+- Home, Forms, and Add Form were rendered and visually inspected at desktop, tablet, and mobile sizes, in light and dark modes.
 
-The designer was tested without a supplied license and displays the vendor's unlicensed-use notice. License activation and deployment-domain checks require your own valid key. This does not affect the standalone Core viewer.
+The designer was tested without a supplied license. License activation and deployment-domain checks require your own valid key.
 
 ## Self-hosted Monaco (no Monaco CDN requests)
 
-The designer uses `@monaco-editor/react`. Its default loader URL is jsDelivr's Monaco **0.55.1** distribution. This project now pins that asset version locally and serves the entire `min/vs` tree under:
+The designer uses `@monaco-editor/react`. Its default loader URL is jsDelivr's Monaco **0.55.1** distribution. This project pins that asset version locally and serves the entire `min/vs` tree under:
 
 ```text
 public/vendor/monaco/0.55.1/vs/
 ```
 
-`pnpm dev` and `pnpm build` automatically run `scripts/copy-monaco.mjs`. The archive also includes these generated assets. The copy includes scripts, styles, fonts, language modules, and worker files, together with Monaco's license. Do not copy only `editor.main.js`: it needs the other files and their relative paths.
+`pnpm dev` and `pnpm build` automatically run `scripts/copy-monaco.mjs`. The copy includes scripts, styles, fonts, language modules, and worker files, together with Monaco's license. Do not copy only `editor.main.js`: it needs the other files and their relative paths.
 
 `configureMonaco()` runs inside the client-only dynamic import callback **before importing the designer**, because the vendor initializes Monaco at module evaluation time. It sets:
 
@@ -112,7 +120,7 @@ loader.config({
 });
 ```
 
-The resulting request is to your own application's `/vendor/monaco/0.55.1/vs/editor/editor.main.js`. No Monaco files need to be loaded from jsDelivr at runtime. The viewer uses the Core renderer and does not import the designer or Monaco setup module.
+The resulting request is to your own application's `/vendor/monaco/0.55.1/vs/editor/editor.main.js`. No Monaco files need to be loaded from jsDelivr at runtime.
 
 To deploy the app under a URL base path, set this build-time environment variable in `.env.local` and rebuild:
 
@@ -123,11 +131,11 @@ NEXT_PUBLIC_MONACO_VS_PATH=/panel/vendor/monaco/0.55.1/vs
 
 The asset path must stay on the application's origin. If assets are stored on a separate internal server, expose them through a same-origin reverse proxy path. The loader validates the configured origin and the resource policy also rejects external origins. Do not configure the loader in a React effect after importing the designer; that allows the default CDN request to start first.
 
-Verified by opening the designer and its JSON editor while blocking every external HTTP/HTTPS request: the local `editor.main.js` loaded successfully, the Monaco editor rendered the form JSON, and no external request was attempted. This check covers this project's registered controls; separately added components that use remote resources need their own configuration.
+Verified by opening the Add Form page and its JSON editor while blocking every external HTTP/HTTPS request: the local `editor.main.js` loaded successfully, the Monaco editor rendered the form JSON, and no external request was attempted. This check covers this project's registered controls; separately added components that use remote resources need their own configuration.
 
 ## All runtime assets are local
 
-This setting applies to all asset classes in the included panel, designer, and viewer:
+This setting applies to all asset classes in the included panel and designer:
 
 | Asset                                                      | Local source                             | Runtime delivery                                                |
 | ---------------------------------------------------------- | ---------------------------------------- | --------------------------------------------------------------- |
@@ -137,10 +145,10 @@ This setting applies to all asset classes in the included panel, designer, and v
 | Icons                                                      | Component/package source                 | Bundled SVGs and locally rendered symbols                       |
 | Persian designer translation and RSuite locale             | Installed designer/RSuite packages       | Application JavaScript bundles                                  |
 | Monaco scripts, CSS, language modules, fonts, workers      | Pinned local `monaco-editor` package     | `public/vendor/monaco/0.55.1/vs/`, with local/blob workers      |
-| Form definitions                                           | Browser storage and imported JSON        | Local data; no hosted form service                              |
+| Form definitions                                           | Page-memory drafts                       | Local data; no hosted form service                              |
 
 `src/config/resource-policy.ts` defines a Content Security Policy, sent through `next.config.ts`, that permits same-origin resource loading and rejects external runtime origins. Data/blob URLs are allowed where embedded styles, images, and workers need them. Inline styles/scripts and evaluation remain permitted for the current framework/editor behavior; this policy enforces the local-asset requirement rather than being a full strict-CSP configuration. API connections are also same-origin; add a same-origin API route or reverse proxy when connecting a separate backend.
 
-`tests/e2e/fixtures.ts` audits all browser tests, not only Monaco: it denies external HTTP/HTTPS traffic, records attempted outbound requests, and checks CSP violations. The included nine browser tests pass with this audit enabled. This prevents a blocked CDN dependency from being mistaken for successful local hosting. The tested scope is the included component registry and flows; external services introduced by future custom components need equivalent local handling.
+`tests/e2e/fixtures.ts` audits all browser tests, not only Monaco: it denies external HTTP/HTTPS traffic, records attempted outbound requests, and checks CSP violations. The included seven browser tests pass with this audit enabled. This prevents a blocked CDN dependency from being mistaken for successful local hosting. The tested scope is the included component registry and flows; external services introduced by future custom components need equivalent local handling.
 
 Runtime use needs no third-party CDN access. Initial package installation still downloads dependencies from your configured pnpm registry unless they are already cached or served by your internal registry. Documentation/pricing links remain normal links; they are not automatically fetched assets.

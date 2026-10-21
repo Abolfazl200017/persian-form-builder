@@ -18,6 +18,15 @@ pre {
 .engine-host {
   min-width: 0;
 }
+/* Keep the designer chrome on the panel typeface; Monaco keeps its code font. */
+.engine-host,
+.engine-host :not(.monaco-editor):not(.monaco-editor *),
+body.rs-theme-light :is(.rs-modal, .rs-popover, .rs-picker-menu, .rs-dropdown-menu, .rs-tooltip, .rs-notification, .rs-message),
+body.rs-theme-dark :is(.rs-modal, .rs-popover, .rs-picker-menu, .rs-dropdown-menu, .rs-tooltip, .rs-notification, .rs-message),
+body.rs-theme-light :is(.rs-modal, .rs-popover, .rs-picker-menu, .rs-dropdown-menu, .rs-tooltip, .rs-notification, .rs-message) :not(.monaco-editor):not(.monaco-editor *),
+body.rs-theme-dark :is(.rs-modal, .rs-popover, .rs-picker-menu, .rs-dropdown-menu, .rs-tooltip, .rs-notification, .rs-message) :not(.monaco-editor):not(.monaco-editor *) {
+  font-family: 'Vazirmatn', Tahoma, sans-serif !important;
+}
 .engine-host input,
 .engine-host textarea,
 .engine-host button {
@@ -30,4 +39,7 @@ pre {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+}
+._container_e6226_1 {
+  display: none !important;
 }

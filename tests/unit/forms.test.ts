@@ -3,7 +3,9 @@ import { normalizeSubmission, toEnglishDigits, toPersianDigits } from '@/lib/dig
 import { isIranMobile, isIranNationalId } from '@/features/forms/domain/validation';
 import { parseFormDocument } from '@/features/forms/domain/form-document';
 import { sampleJson } from '@/features/forms/domain/sample';
+import { NEW_FORM_NAME, newFormJson } from '@/features/forms/domain/new-form';
 import { LocalFormRepository } from '@/features/forms/infrastructure/local-form-repository';
+import { MemoryFormRepository } from '@/features/forms/infrastructure/memory-form-repository';
 class MemoryStorage implements Storage {
   private data = new Map<string, string>();
   get length() {
@@ -65,5 +67,13 @@ describe('Persian form boundaries', () => {
     await repository.remove('نمونه دوم');
     await expect(repository.load('نمونه دوم')).rejects.toThrow();
     expect(storage.getItem('other')).toBe('keep');
+  });
+  it('keeps draft forms in memory only', async () => {
+    const repository = new MemoryFormRepository();
+    expect(await repository.load(NEW_FORM_NAME)).toBe(newFormJson);
+    await repository.save('پیش‌نویس', newFormJson);
+    expect(await repository.list()).toContain('پیش‌نویس');
+    await repository.remove('پیش‌نویس');
+    await expect(repository.load('پیش‌نویس')).rejects.toThrow();
   });
 });
