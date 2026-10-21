@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { normalizeSubmission, toEnglishDigits, toPersianDigits } from '@/lib/digits';
+import { splitRequiredLabel } from '@/lib/labels';
 import { isIranMobile, isIranNationalId } from '@/features/forms/domain/validation';
 import { parseFormDocument } from '@/features/forms/domain/form-document';
 import { sampleJson } from '@/features/forms/domain/sample';
@@ -31,6 +32,16 @@ describe('Persian form boundaries', () => {
   it('converts both Persian and Arabic digits without changing other text', () => {
     expect(toEnglishDigits('۰۱۲٣٤٥ test')).toBe('012345 test');
     expect(toPersianDigits('0935')).toBe('۰۹۳۵');
+  });
+  it('splits a trailing asterisk so the marker can be colored', () => {
+    expect(splitRequiredLabel('نام*')).toEqual({ text: 'نام', separator: '', required: true });
+    expect(splitRequiredLabel('نام *')).toEqual({ text: 'نام', separator: ' ', required: true });
+    expect(splitRequiredLabel('نام خانوادگی')).toEqual({
+      text: 'نام خانوادگی',
+      separator: '',
+      required: false,
+    });
+    expect(splitRequiredLabel('a*b')).toEqual({ text: 'a*b', separator: '', required: false });
   });
   it('normalizes nested submitted values while retaining key names and types', () => {
     expect(normalizeSubmission({ فیلد۱: ['۱۲', 5, false, null] })).toEqual({

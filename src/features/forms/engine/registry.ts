@@ -9,6 +9,7 @@ import {
   node,
   oneOf,
   string,
+  type ComponentLibraryDescription,
 } from '@react-form-builder/core';
 import {
   Consent,
@@ -86,6 +87,38 @@ export const componentMetadata = definitions.map((definition) => definition.buil
 export const viewerView = createView(
   componentMetadata.map((component) => component.model),
 ).withViewerWrapper(ViewerWrapper);
+
+/** Persian titles for the designer's built-in components and shared properties. */
+const persianComponentLibrary: Record<string, ComponentLibraryDescription> = {
+  'fa-IR': {
+    components: {
+      Modal: { name: 'مودال' },
+      Key: { name: 'کلید' },
+      Tooltip: { name: 'راهنما' },
+      DefaultErrorMessage: { name: 'پیام خطای پیش‌فرض' },
+      Repeater: {
+        name: 'تکرارشونده',
+        props: { itemRenderWhen: { name: 'زمان نمایش آیتم' } },
+      },
+      Slot: { name: 'جایگاه' },
+      EmbeddedForm: {
+        name: 'فرم جاسازی‌شده',
+        props: {
+          formName: { name: 'نام فرم' },
+          options: { name: 'گزینه‌ها' },
+        },
+      },
+    },
+    commonProperties: {
+      key: { name: 'کلید' },
+      renderWhen: { name: 'زمان نمایش' },
+      itemRenderWhen: { name: 'زمان نمایش آیتم' },
+    },
+  },
+};
+
 export const builderView = new BuilderView(componentMetadata)
   .withTemplates([])
-  .withViewerWrapper(ViewerWrapper);
+  .withViewerWrapper(ViewerWrapper)
+  .withComponentLibraryDescription(persianComponentLibrary);
+

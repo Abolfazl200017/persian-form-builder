@@ -12,6 +12,26 @@ import {
 } from '@mui/material';
 import { useErrorMessage, type ErrorWrapperProps } from '@react-form-builder/core';
 import { toEnglishDigits, toPersianDigits } from '@/lib/digits';
+import { splitRequiredLabel } from '@/lib/labels';
+
+export function FieldLabel({ label }: { label: string }) {
+  const { text, separator, required } = splitRequiredLabel(label);
+  if (!required) return <>{label}</>;
+  return (
+    <>
+      {text}
+      {separator}
+      <Box component="span" sx={{ color: 'error.main' }}>
+        *
+      </Box>
+    </>
+  );
+}
+
+function labelNode(label?: string) {
+  return label ? <FieldLabel label={label} /> : undefined;
+}
+
 export interface TextProps {
   value?: string;
   onChange?: (value: string) => void;
@@ -41,7 +61,7 @@ export function PersianText({
     <TextField
       className={className}
       style={style}
-      label={label}
+      label={labelNode(label)}
       placeholder={placeholder}
       value={value}
       onChange={(event) => onChange?.(event.target.value)}
@@ -74,7 +94,7 @@ export function DigitField({
     <TextField
       className={className}
       style={style}
-      label={label}
+      label={labelNode(label)}
       placeholder={placeholder}
       value={toPersianDigits(display)}
       onChange={(event) => {
@@ -125,7 +145,7 @@ export function Consent({
   return (
     <Box>
       <FormControlLabel
-        label={label}
+        label={labelNode(label)}
         control={
           <Checkbox
             checked={value}

@@ -32,6 +32,27 @@ body.rs-theme-dark :is(.rs-modal, .rs-popover, .rs-picker-menu, .rs-dropdown-men
 .engine-host button {
   font-family: inherit;
 }
+/* Keep the designer's portaled pickers, modals and tooltips above the fullscreen shell. */
+body.rs-theme-light .rs-picker-popup,
+body.rs-theme-dark .rs-picker-popup,
+body.rs-theme-light .rs-popover,
+body.rs-theme-dark .rs-popover,
+body.rs-theme-light .rs-dropdown-menu,
+body.rs-theme-dark .rs-dropdown-menu,
+body.rs-theme-light .rs-tooltip,
+body.rs-theme-dark .rs-tooltip,
+body.rs-theme-light .rs-modal-wrapper,
+body.rs-theme-dark .rs-modal-wrapper,
+body.rs-theme-light .rs-notification,
+body.rs-theme-dark .rs-notification,
+body.rs-theme-light .rs-message,
+body.rs-theme-dark .rs-message {
+  z-index: 1300 !important;
+}
+body.rs-theme-light .rs-modal-backdrop,
+body.rs-theme-dark .rs-modal-backdrop {
+  z-index: 1290 !important;
+}
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

@@ -7,21 +7,35 @@ import {
   Button,
   Card,
   CardContent,
-  Chip,
+  Snackbar,
   Stack,
   Typography,
 } from '@mui/material';
+import { newFormJson } from '../domain/new-form';
 import { FormDesigner } from './form-designer';
-import {
-  FORM_TYPE_LABELS,
-  FormMetadataFields,
-  type FormDraft,
-} from './form-metadata-fields';
+import { FormMetadataFields, type FormDraft } from './form-metadata-fields';
 
 const INITIAL_DRAFT: FormDraft = { name: '', code: '', type: 'web' };
 
 export function AddFormView() {
   const [draft, setDraft] = useState<FormDraft>(INITIAL_DRAFT);
+  const [schema, setSchema] = useState(newFormJson);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+
+  function logFormData() {
+    try {
+      const payload = {
+        formName: draft.name,
+        code: draft.code,
+        type: draft.type,
+        jsonData: JSON.parse(schema || newFormJson),
+      };
+      console.log('form-data', payload);
+      setSnackbarOpen(true);
+    } catch {
+      console.error('form-data: the designer returned invalid JSON');
+    }
+  }
 
   return (
     <Stack spacing={3}>
@@ -62,35 +76,21 @@ export function AddFormView() {
         </CardContent>
       </Card>
 
-      <Box component="section" aria-labelledby="designer-heading">
-        <Stack
-          direction="row"
-          sx={{ alignItems: 'center', flexWrap: 'wrap', gap: 1.5, mb: 1.5 }}
-        >
-          <Typography id="designer-heading" variant="h6" component="h2">
-            طراح فرم
-          </Typography>
-          <Chip
-            label={FORM_TYPE_LABELS[draft.type]}
-            size="small"
-            variant="outlined"
-            color="primary"
-          />
-          {draft.code && (
-            <Chip
-              dir="ltr"
-              label={draft.code}
-              size="small"
-              variant="outlined"
-              sx={{ maxWidth: 220, '& .MuiChip-label': { overflow: 'hidden', textOverflow: 'ellipsis' } }}
-            />
-          )}
-          <Typography variant="caption" color="text.secondary" sx={{ ms: { md: 'auto' } }}>
-            تغییرات در این نسخه ذخیره نمی‌شوند
-          </Typography>
-        </Stack>
-        <FormDesigner />
+      <FormDesigner onSchemaChange={setSchema} />
+
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', pt: 1 }}>
+        <Button variant="contained" onClick={logFormData}>
+          دریافت داده فرم
+        </Button>
       </Box>
+
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={() => setSnackbarOpen(false)}
+        message="داده فرم در کنسول ثبت شد."
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      />
     </Stack>
   );
 }

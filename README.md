@@ -32,6 +32,9 @@ If Playwright's browser download is unavailable, reuse an installed browser inst
 
 - The sidebar was replaced with a horizontal top navigation, so the main content and the designer use the full panel width. On mobile the same navigation opens in a drawer; the menu contains exactly **Home** (خانه) and **Forms** (فرم‌ها). The header sits at `z-index: 10`.
 - The MUI theme mirrors FormEngine's RSuite light and dark themes: primary `#3498ff` / `#34c3ff`, green accent `#37ab3c` / `#58b15b`, canvas `#f7f7fa` / `#0f131a`, white and `#1a1d24` surfaces, matching borders, 6px radii, 14px type, compact 36px controls and flat surfaces. A single toggle button in the header switches the panel and the embedded designer together. The designer chrome uses the panel's Vazirmatn typeface, including its portals; Monaco keeps its code font.
+- The designer can take the whole viewport with a **تمام‌صفحه** control and return with **حالت پنجره** or Escape. Portaled vendor pickers, modals and tooltips are layered above this fullscreen shell.
+- Field labels ending in `*` render that marker in red. The Add Form page's bottom **دریافت داده فرم** action logs `{ formName, code, type, jsonData }` to the browser console and confirms with a snackbar; nothing is persisted.
+- FormEngine's built-in component names, component properties and form settings are translated to Persian through component-library descriptions and locale overrides, including a few vendor strings that bypass i18n.
 - All runtime assets are local; see the asset sections below.
 
 ## Integration decisions
@@ -41,7 +44,7 @@ If Playwright's browser download is unavailable, reuse an installed browser inst
 - The upstream `@react-form-builder/components-material-ui@11.1.0` declares `@mui/material: ^7.3.2` and MUI X 7. This project deliberately uses the documented `define()` API to build a shared **MUI 9 adapter registry**, rather than forcing unsupported peer versions or loading two MUI majors. Existing forms using upstream `MuiTextField` and other `Mui*` names must be migrated to this registry's types before use.
 - The administration panel uses MUI 9. **The embedded FormEngine designer chrome uses RSuite internally.** Its official Persian translation and RSuite locale are loaded via the `i18n` API. Making the vendor's entire editor chrome MUI requires a separate supported vendor customization effort; changing the form registry does not replace that chrome.
 - One metadata registry feeds the designer, so custom types round-trip correctly. Stable type names are part of your stored schema contract.
-- The Add Form page is a drafting surface: Name, Code, Form Type (`mobile` | `web`) and the designer, with no save action or data table yet. The designer is backed by `MemoryFormRepository`, so drafts stay in page memory and browser storage is untouched. `LocalFormRepository` remains the browser-storage adapter for when persistence is specified. `persistFormName` is off, so the designer does not write its form name to localStorage either.
+- The Add Form page is a drafting surface: Name, Code, Form Type (`mobile` | `web`) and the designer, with no save action or data table yet. Its bottom action logs the page data to the console. The designer is backed by `MemoryFormRepository`, so drafts stay in page memory and browser storage is untouched. `LocalFormRepository` remains the browser-storage adapter for when persistence is specified. `persistFormName` is off, so the designer does not write its form name to localStorage either.
 
 ## Components
 
@@ -67,7 +70,7 @@ Numeric fields accept English, Persian, and Arabic digits and keep their engine 
 - `src/features/forms/infrastructure`: browser-storage and session-only repositories.
 - `src/features/forms/engine`: component adapters, registry, Persian localization, validators, Monaco setup, and designer storage bridge.
 - `src/features/forms/ui`: Add Form view, metadata fields, designer wrapper/runtime, and the Create Form button.
-- `src/lib/digits.ts`: reusable numeral normalization.
+- `src/lib/digits.ts` and `src/lib/labels.ts`: numeral normalization and required-label handling.
 - `tests`: domain/storage unit tests and browser integration tests.
 
 To add a component: implement a controlled MUI control, expose primitive `onChange(value)` rather than a DOM event, read validation with `useErrorMessage()`, describe value/events/editable properties using `define()`, and add it to the shared registry. Add a validation rule and sample schema usage where appropriate. Container controls forward their refs so designer drag-and-drop can target the DOM node.
@@ -76,7 +79,7 @@ The `FormRepository` interface keeps persistence separate from FormEngine. The s
 
 ## Submission and production scope
 
-The panel does not submit or persist forms yet. The designer's preview submit action is intentionally a no-op, and the Forms page only provides the Create Form entry point. **No API request or backend persistence is implemented.** Add the save flow, authentication, authorization, loading/error states, and server-side validation before exposing real business forms. No auth backend was specified or invented.
+The panel does not submit or persist forms yet. The designer's preview submit action is intentionally a no-op; the Add Form bottom action only logs the metadata and JSON to the browser console, and the Forms page only provides the Create Form entry point. **No API request or backend persistence is implemented.** Add the save flow, authentication, authorization, loading/error states, and server-side validation before exposing real business forms. No auth backend was specified or invented.
 
 Repository writes run `parseFormDocument`, which checks size, basic node structure, unique keys, and tree complexity. This is intentionally a structural guard, not full FormEngine JSON-schema validation and not an expression sandbox. FormEngine definitions may contain executable expressions/actions: only load trusted definitions. Unknown component types need a matching registry entry. The guard preserves other engine metadata instead of silently stripping it.
 
@@ -96,9 +99,9 @@ Dependency versions and APIs were checked when this project was generated. The l
 ## Verified delivery
 
 - Production build, strict TypeScript check, and ESLint passed.
-- Seven unit tests passed, including session-only draft storage.
-- Eight Chromium integration tests passed with external traffic blocked and audited: the two-page horizontal navigation at full width, Forms → Create Form → Add Form, the designer spanning the panel width with locally served Monaco, metadata editing and type switching, mobile drawer navigation without horizontal overflow, designer-aligned theme tokens and header z-index, the header theme button switching the panel and designer together with the shared typeface, and the same-origin CSP with bundled Vazirmatn.
-- Home, Forms, and Add Form were rendered and visually inspected at desktop, tablet, and mobile sizes, in light and dark modes.
+- Eight unit tests passed, including session-only draft storage and required-marker splitting.
+- Ten Chromium integration tests passed with external traffic blocked and audited: the two-page horizontal navigation at full width, Forms → Create Form → Add Form, the designer spanning the panel width with locally served Monaco, metadata editing plus console page-data logging, the fullscreen/window toggle with vendor overlays above it, Persian designer built-ins and settings, mobile drawer navigation without horizontal overflow, designer-aligned theme tokens and header z-index, the header theme button switching the panel and designer together with the shared typeface, and the same-origin CSP with bundled Vazirmatn.
+- Home, Forms, and Add Form were rendered and visually inspected at desktop, tablet, and mobile sizes, in light and dark modes, including the fullscreen designer.
 
 The designer was tested without a supplied license. License activation and deployment-domain checks require your own valid key.
 

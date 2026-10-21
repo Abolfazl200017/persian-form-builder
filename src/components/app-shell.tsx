@@ -7,7 +7,6 @@ import {
   AppBar,
   Box,
   ButtonBase,
-  Chip,
   Divider,
   Drawer,
   IconButton,
@@ -173,12 +172,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             ))}
           </Stack>
           <Box sx={{ flex: 1 }} />
-          <Chip
-            label="فارسی · راست‌به‌چپ"
-            size="small"
-            variant="outlined"
-            sx={{ display: { xs: 'none', lg: 'inline-flex' }, color: 'text.secondary' }}
-          />
           <IconButton
             aria-label={mode === 'dark' ? 'تغییر به حالت روشن' : 'تغییر به حالت تاریک'}
             onClick={toggleMode}
