@@ -22,6 +22,14 @@ import {
   SubmitButton,
   ViewerWrapper,
 } from './components';
+import { FormGrid } from './grid';
+
+const countOptions = Array.from({ length: 12 }, (_, index) => String(index + 1));
+const gridSpanProps = {
+  mobileSpan: oneOf(...countOptions).default('1').named('ستون در موبایل'),
+  tabletSpan: oneOf(...countOptions).default('1').named('ستون در تبلت'),
+  desktopSpan: oneOf(...countOptions).default('1').named('ستون در دسکتاپ'),
+};
 const textProps = {
   value: string.valued.uncontrolledValue(''),
   label: string.default('عنوان فیلد').named('عنوان'),
@@ -29,6 +37,7 @@ const textProps = {
   disabled: disabled.default(false).named('غیرفعال'),
   readOnly: readOnly.default(false).named('فقط خواندنی'),
   onChange: event,
+  ...gridSpanProps,
 };
 const definitions = [
   define(PersianText, 'PersianText')
@@ -60,6 +69,7 @@ const definitions = [
       disabled: disabled.default(false),
       readOnly: readOnly.default(false),
       onChange: event,
+      ...gridSpanProps,
     }),
   define(SectionTitle, 'SectionTitle')
     .name('عنوان بخش')
@@ -67,12 +77,23 @@ const definitions = [
     .props({
       title: string.default('عنوان بخش').named('عنوان'),
       description: string.default('توضیحات بخش').named('توضیحات'),
+      ...gridSpanProps,
+    }),
+  define(FormGrid, 'FormGrid')
+    .name('شبکه')
+    .category('چیدمان')
+    .kind('container')
+    .props({
+      mobileColumns: oneOf(...countOptions).default('1').named('ستون‌های موبایل'),
+      tabletColumns: oneOf(...countOptions).default('2').named('ستون‌های تبلت'),
+      desktopColumns: oneOf(...countOptions).default('3').named('ستون‌های دسکتاپ'),
+      children: node,
     }),
   define(FormSection, 'FormSection')
     .name('بخش فرم')
     .category('چیدمان')
     .kind('container')
-    .props({ children: node }),
+    .props({ children: node, ...gridSpanProps }),
   define(SubmitButton, 'SubmitButton')
     .name('دکمه ارسال')
     .category('عملیات')
@@ -81,6 +102,7 @@ const definitions = [
       readOnly: readOnly.default(false),
       onClick: event,
       disabled: disabled.default(false),
+      ...gridSpanProps,
     }),
 ];
 export const componentMetadata = definitions.map((definition) => definition.build());

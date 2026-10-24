@@ -17,5 +17,3 @@ export const newFormDocument = {
 };
 
 export const newFormJson = JSON.stringify(newFormDocument);
-
-export type FormType = 'mobile' | 'web';

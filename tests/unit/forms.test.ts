@@ -3,6 +3,12 @@ import { normalizeSubmission, toEnglishDigits, toPersianDigits } from '@/lib/dig
 import { splitRequiredLabel } from '@/lib/labels';
 import { isIranMobile, isIranNationalId } from '@/features/forms/domain/validation';
 import { parseFormDocument } from '@/features/forms/domain/form-document';
+import { formDraftSchema } from '@/features/forms/domain/form-draft';
+import {
+  clampGridSpan,
+  resolveGridColumns,
+  resolveGridSpan,
+} from '@/features/forms/engine/grid-math';
 import { sampleJson } from '@/features/forms/domain/sample';
 import { NEW_FORM_NAME, newFormJson } from '@/features/forms/domain/new-form';
 import { LocalFormRepository } from '@/features/forms/infrastructure/local-form-repository';
@@ -42,6 +48,42 @@ describe('Persian form boundaries', () => {
       required: false,
     });
     expect(splitRequiredLabel('a*b')).toEqual({ text: 'a*b', separator: '', required: false });
+  });
+  it('validates the add form draft with zod', () => {
+    expect(
+      formDraftSchema.safeParse({ name: 'نظرسنجی', code: 'survey-1', type: 'mobile' }).success,
+    ).toBe(true);
+    const empty = formDraftSchema.safeParse({ name: '  ', code: '', type: 'web' });
+    expect(empty.success).toBe(false);
+    if (!empty.success) {
+      expect(empty.error.issues.map((issue) => issue.message)).toEqual(
+        expect.arrayContaining(['نام فرم الزامی است', 'کد فرم الزامی است']),
+      );
+    }
+    expect(
+      formDraftSchema.safeParse({ name: 'فرم', code: 'Bad Code', type: 'web' }).success,
+    ).toBe(false);
+    expect(formDraftSchema.parse({ name: '  فرم  ', code: ' sample ', type: 'web' })).toEqual({
+      name: 'فرم',
+      code: 'sample',
+      type: 'web',
+    });
+  });
+  it('resolves responsive grid columns and clamps spans', () => {
+    const columns = { mobileColumns: '1', tabletColumns: '2', desktopColumns: '3' };
+    expect(resolveGridColumns('mobile', columns)).toBe(1);
+    expect(resolveGridColumns('tablet', columns)).toBe(2);
+    expect(resolveGridColumns('desktop', columns)).toBe(3);
+    expect(resolveGridColumns('desktop', { desktopColumns: '99' })).toBe(12);
+    expect(resolveGridColumns('desktop', { desktopColumns: 'not-a-number' })).toBe(1);
+
+    const spans = { mobileSpan: '1', tabletSpan: '2', desktopSpan: '5' };
+    expect(resolveGridSpan('mobile', spans)).toBe(1);
+    expect(resolveGridSpan('tablet', spans)).toBe(2);
+    expect(resolveGridSpan('desktop', spans)).toBe(5);
+    expect(clampGridSpan(5, 3)).toBe(3);
+    expect(clampGridSpan(0, 3)).toBe(1);
+    expect(clampGridSpan(2, 2)).toBe(2);
   });
   it('normalizes nested submitted values while retaining key names and types', () => {
     expect(normalizeSubmission({ فیلد۱: ['۱۲', 5, false, null] })).toEqual({

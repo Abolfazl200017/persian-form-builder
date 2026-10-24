@@ -2,38 +2,38 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import {
-  Box,
-  Button,
-  Card,
-  CardContent,
-  Snackbar,
-  Stack,
-  Typography,
-} from '@mui/material';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { FormProvider, useForm } from 'react-hook-form';
+import { Box, Button, Card, CardContent, Snackbar, Stack, Typography } from '@mui/material';
+import { INITIAL_FORM_DRAFT, formDraftSchema, type FormDraft } from '../domain/form-draft';
+import { parseFormDocument } from '../domain/form-document';
 import { newFormJson } from '../domain/new-form';
 import { FormDesigner } from './form-designer';
-import { FormMetadataFields, type FormDraft } from './form-metadata-fields';
-
-const INITIAL_DRAFT: FormDraft = { name: '', code: '', type: 'web' };
+import { FormMetadataFields } from './form-metadata-fields';
 
 export function AddFormView() {
-  const [draft, setDraft] = useState<FormDraft>(INITIAL_DRAFT);
   const [schema, setSchema] = useState(newFormJson);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [feedback, setFeedback] = useState('');
+  const methods = useForm<FormDraft>({
+    resolver: zodResolver(formDraftSchema),
+    defaultValues: INITIAL_FORM_DRAFT,
+    mode: 'onTouched',
+  });
 
-  function logFormData() {
+  function submitForm(data: FormDraft) {
     try {
+      parseFormDocument(schema);
       const payload = {
-        formName: draft.name,
-        code: draft.code,
-        type: draft.type,
-        jsonData: JSON.parse(schema || newFormJson),
+        formName: data.name,
+        code: data.code,
+        type: data.type,
+        jsonData: JSON.parse(schema),
       };
       console.log('form-data', payload);
-      setSnackbarOpen(true);
-    } catch {
-      console.error('form-data: the designer returned invalid JSON');
+      setFeedback('داده فرم در کنسول ثبت شد.');
+    } catch (error) {
+      console.error('form-data: the designer returned an invalid form document', error);
+      setFeedback('ساختار فرم معتبر نیست.');
     }
   }
 
@@ -64,31 +64,32 @@ export function AddFormView() {
         </Typography>
       </Stack>
 
-      <Card>
-        <CardContent sx={{ p: { xs: 2, md: 2.5 }, '&:last-child': { pb: { xs: 2, md: 2.5 } } }}>
-          <Typography variant="subtitle1" component="h2" sx={{ mb: 2 }}>
-            اطلاعات فرم
-          </Typography>
-          <FormMetadataFields
-            value={draft}
-            onChange={(patch) => setDraft((current) => ({ ...current, ...patch }))}
-          />
-        </CardContent>
-      </Card>
+      <FormProvider {...methods}>
+        <Box component="form" id="add-form" noValidate onSubmit={methods.handleSubmit(submitForm)}>
+          <Card>
+            <CardContent sx={{ p: { xs: 2, md: 2.5 }, '&:last-child': { pb: { xs: 2, md: 2.5 } } }}>
+              <Typography variant="subtitle1" component="h2" sx={{ mb: 2 }}>
+                اطلاعات فرم
+              </Typography>
+              <FormMetadataFields />
+            </CardContent>
+          </Card>
+        </Box>
+      </FormProvider>
 
       <FormDesigner onSchemaChange={setSchema} />
 
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', pt: 1 }}>
-        <Button variant="contained" onClick={logFormData}>
-          دریافت داده فرم
+        <Button type="submit" form="add-form" variant="contained">
+          ثبت فرم
         </Button>
       </Box>
 
       <Snackbar
-        open={snackbarOpen}
+        open={!!feedback}
         autoHideDuration={3000}
-        onClose={() => setSnackbarOpen(false)}
-        message="داده فرم در کنسول ثبت شد."
+        onClose={() => setFeedback('')}
+        message={feedback}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       />
     </Stack>

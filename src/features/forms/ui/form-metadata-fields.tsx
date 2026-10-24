@@ -1,26 +1,17 @@
 'use client';
 
+import { Controller, useFormContext } from 'react-hook-form';
 import { Box, MenuItem, TextField } from '@mui/material';
-import type { FormType } from '../domain/new-form';
-
-export interface FormDraft {
-  name: string;
-  code: string;
-  type: FormType;
-}
+import { FORM_TYPES, type FormDraft, type FormType } from '../domain/form-draft';
 
 export const FORM_TYPE_LABELS: Record<FormType, string> = {
   mobile: 'موبایل',
   web: 'وب',
 };
 
-export function FormMetadataFields({
-  value,
-  onChange,
-}: {
-  value: FormDraft;
-  onChange: (patch: Partial<FormDraft>) => void;
-}) {
+export function FormMetadataFields() {
+  const { control } = useFormContext<FormDraft>();
+
   return (
     <Box
       sx={{
@@ -29,31 +20,65 @@ export function FormMetadataFields({
         gap: 2,
       }}
     >
-      <TextField
-        label="نام فرم"
-        placeholder="مثلاً: نظرسنجی رضایت مشتری"
-        value={value.name}
-        onChange={(event) => onChange({ name: event.target.value })}
+      <Controller
+        name="name"
+        control={control}
+        render={({ field, fieldState }) => {
+          const { ref, ...fieldProps } = field;
+          return (
+            <TextField
+              {...fieldProps}
+              slotProps={{ htmlInput: { ref } }}
+              label="نام فرم"
+              placeholder="مثلاً: نظرسنجی رضایت مشتری"
+              required
+              error={!!fieldState.error}
+              helperText={fieldState.error?.message}
+            />
+          );
+        }}
       />
-      <TextField
-        label="کد فرم"
-        placeholder="مثلاً: customer-feedback"
-        value={value.code}
-        onChange={(event) => onChange({ code: event.target.value })}
-        slotProps={{ htmlInput: { dir: 'ltr' } }}
+      <Controller
+        name="code"
+        control={control}
+        render={({ field, fieldState }) => {
+          const { ref, ...fieldProps } = field;
+          return (
+            <TextField
+              {...fieldProps}
+              slotProps={{ htmlInput: { ref, dir: 'ltr' } }}
+              label="کد فرم"
+              placeholder="مثلاً: customer-feedback"
+              required
+              error={!!fieldState.error}
+              helperText={fieldState.error?.message}
+            />
+          );
+        }}
       />
-      <TextField
-        select
-        label="نوع فرم"
-        value={value.type}
-        onChange={(event) => onChange({ type: event.target.value as FormType })}
-      >
-        {Object.entries(FORM_TYPE_LABELS).map(([type, label]) => (
-          <MenuItem key={type} value={type}>
-            {label}
-          </MenuItem>
-        ))}
-      </TextField>
+      <Controller
+        name="type"
+        control={control}
+        render={({ field, fieldState }) => {
+          const { ref, ...fieldProps } = field;
+          return (
+            <TextField
+              {...fieldProps}
+              slotProps={{ htmlInput: { ref } }}
+              select
+              label="نوع فرم"
+              error={!!fieldState.error}
+              helperText={fieldState.error?.message}
+            >
+              {FORM_TYPES.map((type) => (
+                <MenuItem key={type} value={type}>
+                  {FORM_TYPE_LABELS[type]}
+                </MenuItem>
+              ))}
+            </TextField>
+          );
+        }}
+      />
     </Box>
   );
 }

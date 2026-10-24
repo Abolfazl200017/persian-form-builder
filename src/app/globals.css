@@ -21,10 +21,48 @@ pre {
 /* Keep the designer chrome on the panel typeface; Monaco keeps its code font. */
 .engine-host,
 .engine-host :not(.monaco-editor):not(.monaco-editor *),
-body.rs-theme-light :is(.rs-modal, .rs-popover, .rs-picker-menu, .rs-dropdown-menu, .rs-tooltip, .rs-notification, .rs-message),
-body.rs-theme-dark :is(.rs-modal, .rs-popover, .rs-picker-menu, .rs-dropdown-menu, .rs-tooltip, .rs-notification, .rs-message),
-body.rs-theme-light :is(.rs-modal, .rs-popover, .rs-picker-menu, .rs-dropdown-menu, .rs-tooltip, .rs-notification, .rs-message) :not(.monaco-editor):not(.monaco-editor *),
-body.rs-theme-dark :is(.rs-modal, .rs-popover, .rs-picker-menu, .rs-dropdown-menu, .rs-tooltip, .rs-notification, .rs-message) :not(.monaco-editor):not(.monaco-editor *) {
+body.rs-theme-light
+  :is(
+    .rs-modal,
+    .rs-popover,
+    .rs-picker-menu,
+    .rs-dropdown-menu,
+    .rs-tooltip,
+    .rs-notification,
+    .rs-message
+  ),
+body.rs-theme-dark
+  :is(
+    .rs-modal,
+    .rs-popover,
+    .rs-picker-menu,
+    .rs-dropdown-menu,
+    .rs-tooltip,
+    .rs-notification,
+    .rs-message
+  ),
+body.rs-theme-light
+  :is(
+    .rs-modal,
+    .rs-popover,
+    .rs-picker-menu,
+    .rs-dropdown-menu,
+    .rs-tooltip,
+    .rs-notification,
+    .rs-message
+  )
+  :not(.monaco-editor):not(.monaco-editor *),
+body.rs-theme-dark
+  :is(
+    .rs-modal,
+    .rs-popover,
+    .rs-picker-menu,
+    .rs-dropdown-menu,
+    .rs-tooltip,
+    .rs-notification,
+    .rs-message
+  )
+  :not(.monaco-editor):not(.monaco-editor *) {
   font-family: 'Vazirmatn', Tahoma, sans-serif !important;
 }
 .engine-host input,

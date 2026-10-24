@@ -1,5 +1,5 @@
 'use client';
-import { forwardRef, type CSSProperties, type ReactNode } from 'react';
+import { forwardRef, useCallback, useRef, type CSSProperties, type ReactNode } from 'react';
 import {
   Box,
   Button,
@@ -13,6 +13,8 @@ import {
 import { useErrorMessage, type ErrorWrapperProps } from '@react-form-builder/core';
 import { toEnglishDigits, toPersianDigits } from '@/lib/digits';
 import { splitRequiredLabel } from '@/lib/labels';
+import { useGridItem } from './grid';
+import type { GridSpanProps } from './grid-math';
 
 export function FieldLabel({ label }: { label: string }) {
   const { text, separator, required } = splitRequiredLabel(label);
@@ -32,7 +34,7 @@ function labelNode(label?: string) {
   return label ? <FieldLabel label={label} /> : undefined;
 }
 
-export interface TextProps {
+export interface TextProps extends GridSpanProps {
   value?: string;
   onChange?: (value: string) => void;
   label?: string;
@@ -55,10 +57,16 @@ export function PersianText({
   inputType = 'text',
   className,
   style,
+  mobileSpan,
+  tabletSpan,
+  desktopSpan,
 }: TextProps) {
+  const rootRef = useRef<HTMLDivElement>(null);
+  useGridItem(rootRef, false, { mobileSpan, tabletSpan, desktopSpan });
   const error = useErrorMessage();
   return (
     <TextField
+      ref={rootRef}
       className={className}
       style={style}
       label={labelNode(label)}
@@ -87,11 +95,17 @@ export function DigitField({
   maxLength,
   amount,
   error,
+  mobileSpan,
+  tabletSpan,
+  desktopSpan,
 }: TextProps & { maxLength?: number; amount?: boolean; error?: string }) {
+  const rootRef = useRef<HTMLDivElement>(null);
+  useGridItem(rootRef, false, { mobileSpan, tabletSpan, desktopSpan });
   const canonical = toEnglishDigits(value);
   const display = amount ? canonical.replace(/\B(?=(\d{3})+(?!\d))/g, '٬') : canonical;
   return (
     <TextField
+      ref={rootRef}
       className={className}
       style={style}
       label={labelNode(label)}
@@ -128,22 +142,29 @@ export function InlineErrorWrapper({ children }: ErrorWrapperProps) {
   return <>{children}</>;
 }
 
+export interface ConsentProps extends GridSpanProps {
+  value?: boolean;
+  onChange?: (value: boolean) => void;
+  label?: string;
+  disabled?: boolean;
+  readOnly?: boolean;
+}
+
 export function Consent({
   value = false,
   onChange,
   label,
   disabled,
   readOnly,
-}: {
-  value?: boolean;
-  onChange?: (value: boolean) => void;
-  label?: string;
-  disabled?: boolean;
-  readOnly?: boolean;
-}) {
+  mobileSpan,
+  tabletSpan,
+  desktopSpan,
+}: ConsentProps) {
+  const rootRef = useRef<HTMLDivElement>(null);
+  useGridItem(rootRef, false, { mobileSpan, tabletSpan, desktopSpan });
   const error = useErrorMessage();
   return (
-    <Box>
+    <Box ref={rootRef}>
       <FormControlLabel
         label={labelNode(label)}
         control={
@@ -161,9 +182,22 @@ export function Consent({
     </Box>
   );
 }
-export function SectionTitle({ title, description }: { title?: string; description?: string }) {
+export interface SectionTitleProps extends GridSpanProps {
+  title?: string;
+  description?: string;
+}
+
+export function SectionTitle({
+  title,
+  description,
+  mobileSpan,
+  tabletSpan,
+  desktopSpan,
+}: SectionTitleProps) {
+  const rootRef = useRef<HTMLDivElement>(null);
+  useGridItem(rootRef, false, { mobileSpan, tabletSpan, desktopSpan });
   return (
-    <Box sx={{ mb: 1 }}>
+    <Box ref={rootRef} sx={{ mb: 1 }}>
       <Typography variant="h5" gutterBottom>
         {title}
       </Typography>
@@ -173,28 +207,67 @@ export function SectionTitle({ title, description }: { title?: string; descripti
     </Box>
   );
 }
+export interface SubmitButtonProps extends GridSpanProps {
+  label?: string;
+  onClick?: () => void;
+  disabled?: boolean;
+  readOnly?: boolean;
+}
+
 export function SubmitButton({
   label,
   onClick,
   disabled,
   readOnly,
-}: {
-  label?: string;
-  onClick?: () => void;
-  disabled?: boolean;
-  readOnly?: boolean;
-}) {
+  mobileSpan,
+  tabletSpan,
+  desktopSpan,
+}: SubmitButtonProps) {
+  const rootRef = useRef<HTMLButtonElement>(null);
+  useGridItem(rootRef, false, { mobileSpan, tabletSpan, desktopSpan });
   return (
-    <Button type="button" variant="contained" onClick={onClick} disabled={disabled || readOnly}>
+    <Button
+      ref={rootRef}
+      type="button"
+      variant="contained"
+      onClick={onClick}
+      disabled={disabled || readOnly}
+    >
       {label}
     </Button>
   );
 }
-export const FormSection = forwardRef<
-  HTMLDivElement,
-  { children?: ReactNode; className?: string; style?: CSSProperties }
->(function FormSection(props, ref) {
-  return <Stack {...props} ref={ref} spacing={2} />;
+export interface FormSectionProps extends GridSpanProps {
+  children?: ReactNode;
+  className?: string;
+  style?: CSSProperties;
+}
+
+export const FormSection = forwardRef<HTMLDivElement, FormSectionProps>(function FormSection(
+  { children, className, style, mobileSpan, tabletSpan, desktopSpan },
+  forwardedRef,
+) {
+  const rootRef = useRef<HTMLDivElement>(null);
+  useGridItem(rootRef, true, { mobileSpan, tabletSpan, desktopSpan });
+  const setRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      rootRef.current = node;
+      if (typeof forwardedRef === 'function') forwardedRef(node);
+      else if (forwardedRef) forwardedRef.current = node;
+    },
+    [forwardedRef],
+  );
+  return (
+    <Stack
+      ref={setRef}
+      className={className}
+      style={style}
+      spacing={2}
+      data-fe-grid-container=""
+    >
+      {children}
+    </Stack>
+  );
 });
 export function ViewerWrapper({ children }: { children?: ReactNode }) {
   return (

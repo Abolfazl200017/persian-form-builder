@@ -73,6 +73,25 @@ test('designer spans the panel width and loads Monaco locally', async ({ page })
   await monacoLoaded;
 });
 
+test('add form metadata is validated with zod before submitting', async ({ page }) => {
+  await page.goto('/forms/new');
+  await expect(page.getByText('ورودی متن', { exact: true }).first()).toBeVisible({
+    timeout: 45000,
+  });
+  await page.getByRole('button', { name: 'ثبت فرم' }).click();
+  await expect(page.getByText('نام فرم الزامی است')).toBeVisible();
+  await expect(page.getByText('کد فرم الزامی است')).toBeVisible();
+  await expect(page.getByText('داده فرم در کنسول ثبت شد.')).toHaveCount(0);
+
+  await page.getByLabel('نام فرم').fill('نظرسنجی مشتری');
+  await page.getByLabel('کد فرم').fill('Bad Code');
+  await page.getByRole('button', { name: 'ثبت فرم' }).click();
+  await expect(
+    page.getByText('کد فرم باید با حروف کوچک انگلیسی، رقم و خط تیره باشد'),
+  ).toBeVisible();
+  await expect(page.getByText('داده فرم در کنسول ثبت شد.')).toHaveCount(0);
+});
+
 test('add form metadata is editable and logs the page data', async ({ page }) => {
   await page.goto('/forms/new');
   await page.getByLabel('نام فرم').fill('نظرسنجی مشتری');
@@ -90,7 +109,7 @@ test('add form metadata is editable and logs the page data', async ({ page }) =>
   const logPromise = page.waitForEvent('console', {
     predicate: (message) => message.text().startsWith('form-data'),
   });
-  await page.getByRole('button', { name: 'دریافت داده فرم' }).click();
+  await page.getByRole('button', { name: 'ثبت فرم' }).click();
   const payload = await (await logPromise).args()[1].jsonValue();
   expect(payload).toMatchObject({
     formName: 'نظرسنجی مشتری',
@@ -150,6 +169,7 @@ test('designer built-ins and form settings are translated to Persian', async ({ 
   await expect(page.getByText('تکرارشونده', { exact: true }).first()).toBeVisible();
   await expect(page.getByText('جایگاه', { exact: true }).first()).toBeVisible();
   await expect(page.getByText('فرم جاسازی‌شده', { exact: true }).first()).toBeVisible();
+  await expect(page.getByText('شبکه', { exact: true }).first()).toBeVisible();
   await expect(page.getByText('Repeater', { exact: true })).toHaveCount(0);
   await expect(page.getByText('EmbeddedForm', { exact: true })).toHaveCount(0);
   await expect(page.getByText('Slot', { exact: true })).toHaveCount(0);
