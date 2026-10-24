@@ -13,6 +13,10 @@ import { useThemeMode } from '@/theme/theme-mode-provider';
 
 /** Strings that FormEngine renders outside its translation system. */
 const VENDOR_TEXT: Record<string, string> = {
+  'Page break': 'شکست صفحه',
+  'Google Maps API key is required. Insert the key, save the form and reload the page.':
+    'کلید API نقشه گوگل را وارد کنید، فرم را ذخیره و صفحه را دوباره بارگذاری کنید.',
+  'Google Maps API key is required.': 'برای نمایش نقشه گوگل، کلید API لازم است.',
   'Default Error Message': 'پیام خطای پیش‌فرض',
   'The name of the form and options are not specified, set at least one value to display the form':
     'نام فرم و گزینه‌ها مشخص نشده‌اند؛ برای نمایش فرم حداقل یک مقدار تعیین کنید.',

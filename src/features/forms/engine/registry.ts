@@ -1,5 +1,6 @@
 import {
   boolean,
+  BiDi,
   BuilderView,
   createView,
   define,
@@ -11,6 +12,7 @@ import {
   string,
   type ComponentLibraryDescription,
 } from '@react-form-builder/core';
+import { ltrCssLoader, rtlCssLoader } from '@react-form-builder/components-rsuite/css-loader';
 import {
   Consent,
   FormSection,
@@ -23,12 +25,20 @@ import {
   ViewerWrapper,
 } from './components';
 import { FormGrid } from './grid';
+import { rsModal } from './modal';
+import { libraryComponents, libraryDescriptions } from './component-library';
 
 const countOptions = Array.from({ length: 12 }, (_, index) => String(index + 1));
 const gridSpanProps = {
-  mobileSpan: oneOf(...countOptions).default('1').named('ستون در موبایل'),
-  tabletSpan: oneOf(...countOptions).default('1').named('ستون در تبلت'),
-  desktopSpan: oneOf(...countOptions).default('1').named('ستون در دسکتاپ'),
+  mobileSpan: oneOf(...countOptions)
+    .default('1')
+    .named('ستون در موبایل'),
+  tabletSpan: oneOf(...countOptions)
+    .default('1')
+    .named('ستون در تبلت'),
+  desktopSpan: oneOf(...countOptions)
+    .default('1')
+    .named('ستون در دسکتاپ'),
 };
 const textProps = {
   value: string.valued.uncontrolledValue(''),
@@ -40,6 +50,7 @@ const textProps = {
   ...gridSpanProps,
 };
 const definitions = [
+  rsModal,
   define(PersianText, 'PersianText')
     .name('ورودی متن')
     .category('ورودی‌ها')
@@ -84,9 +95,15 @@ const definitions = [
     .category('چیدمان')
     .kind('container')
     .props({
-      mobileColumns: oneOf(...countOptions).default('1').named('ستون‌های موبایل'),
-      tabletColumns: oneOf(...countOptions).default('2').named('ستون‌های تبلت'),
-      desktopColumns: oneOf(...countOptions).default('3').named('ستون‌های دسکتاپ'),
+      mobileColumns: oneOf(...countOptions)
+        .default('1')
+        .named('ستون‌های موبایل'),
+      tabletColumns: oneOf(...countOptions)
+        .default('2')
+        .named('ستون‌های تبلت'),
+      desktopColumns: oneOf(...countOptions)
+        .default('3')
+        .named('ستون‌های دسکتاپ'),
       children: node,
     }),
   define(FormSection, 'FormSection')
@@ -105,10 +122,14 @@ const definitions = [
       ...gridSpanProps,
     }),
 ];
-export const componentMetadata = definitions.map((definition) => definition.build());
-export const viewerView = createView(
-  componentMetadata.map((component) => component.model),
-).withViewerWrapper(ViewerWrapper);
+export const componentMetadata = [
+  ...libraryComponents,
+  ...definitions.map((definition) => definition.build()),
+];
+export const viewerView = createView(componentMetadata.map((component) => component.model))
+  .withViewerWrapper(ViewerWrapper)
+  .withCssLoader(BiDi.LTR, ltrCssLoader)
+  .withCssLoader(BiDi.RTL, rtlCssLoader);
 
 /** Persian titles for the designer's built-in components and shared properties. */
 const persianComponentLibrary: Record<string, ComponentLibraryDescription> = {
@@ -142,5 +163,11 @@ const persianComponentLibrary: Record<string, ComponentLibraryDescription> = {
 export const builderView = new BuilderView(componentMetadata)
   .withTemplates([])
   .withViewerWrapper(ViewerWrapper)
-  .withComponentLibraryDescription(persianComponentLibrary);
+  .withCssLoader(BiDi.LTR, ltrCssLoader)
+  .withCssLoader(BiDi.RTL, rtlCssLoader);
 
+for (const description of libraryDescriptions) {
+  builderView.withComponentLibraryDescription(description);
+}
+// Apply the project's wording last so it overrides vendor descriptions.
+builderView.withComponentLibraryDescription(persianComponentLibrary);

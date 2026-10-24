@@ -10,11 +10,19 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { useErrorMessage, type ErrorWrapperProps } from '@react-form-builder/core';
+import {
+  useAriaErrorMessage,
+  useBuilderTheme,
+  useComponentData,
+  useErrorMessage,
+  type ErrorWrapperProps,
+} from '@react-form-builder/core';
+import { CustomProvider } from 'rsuite';
 import { toEnglishDigits, toPersianDigits } from '@/lib/digits';
 import { splitRequiredLabel } from '@/lib/labels';
 import { useGridItem } from './grid';
 import type { GridSpanProps } from './grid-math';
+import { persianRsuiteLocale } from './rsuite-locale';
 
 export function FieldLabel({ label }: { label: string }) {
   const { text, separator, required } = splitRequiredLabel(label);
@@ -137,9 +145,28 @@ export function PersianAmount(props: TextProps) {
   const error = useErrorMessage();
   return <DigitField {...props} amount error={error} />;
 }
-/** Fields own their accessible MUI helper text; avoid duplicate engine errors. */
-export function InlineErrorWrapper({ children }: ErrorWrapperProps) {
-  return <>{children}</>;
+const fieldsWithInlineErrors = new Set([
+  'PersianText',
+  'IranMobile',
+  'NationalId',
+  'PersianAmount',
+  'Consent',
+]);
+
+/** Persian fields own their helper text; other controls use the engine error. */
+export function InlineErrorWrapper({ children, error }: ErrorWrapperProps) {
+  const { model } = useComponentData();
+  const aria = useAriaErrorMessage();
+  return (
+    <>
+      {children}
+      {error && !fieldsWithInlineErrors.has(model.type) && (
+        <FormHelperText error id={aria['aria-errormessage']} role="alert">
+          {error}
+        </FormHelperText>
+      )}
+    </>
+  );
 }
 
 export interface ConsentProps extends GridSpanProps {
@@ -258,28 +285,26 @@ export const FormSection = forwardRef<HTMLDivElement, FormSectionProps>(function
     [forwardedRef],
   );
   return (
-    <Stack
-      ref={setRef}
-      className={className}
-      style={style}
-      spacing={2}
-      data-fe-grid-container=""
-    >
+    <Stack ref={setRef} className={className} style={style} spacing={2} data-fe-grid-container="">
       {children}
     </Stack>
   );
 });
 export function ViewerWrapper({ children }: { children?: ReactNode }) {
+  const theme = useBuilderTheme();
   return (
-    <Box
-      dir="rtl"
-      sx={{
-        '& > div': { gap: 2 },
-        '& .MuiTextField-root': { my: 1 },
-        '& .MuiButton-root': { my: 1 },
-      }}
-    >
-      {children}
-    </Box>
+    <CustomProvider theme={theme} rtl locale={persianRsuiteLocale}>
+      <Box
+        className="rsuite"
+        dir="rtl"
+        sx={{
+          '& > div': { gap: 2 },
+          '& .MuiTextField-root': { my: 1 },
+          '& .MuiButton-root': { my: 1 },
+        }}
+      >
+        {children}
+      </Box>
+    </CustomProvider>
   );
 }

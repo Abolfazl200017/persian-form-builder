@@ -37,15 +37,18 @@ If Playwright's browser download is unavailable, reuse an installed browser inst
 - The **چیدمان** palette includes **شبکه** (Grid): a CSS-grid container with 1–12 columns for mobile, tablet, and desktop. Inputs and layout items expose a column span for each mode. Column counts follow the designer's device mode (with a viewport fallback for standalone rendering), and spans clamp to the active column count. This works in the builder and in preview mode.
 - Field labels ending in `*` render that marker in red. The Add Form page's bottom **ثبت فرم** action validates the metadata with React Hook Form + Zod and logs `{ formName, code, type, jsonData }` to the browser console with a snackbar; nothing is persisted.
 - FormEngine's built-in component names, component properties and form settings are translated to Persian through component-library descriptions and locale overrides, including a few vendor strings that bypass i18n.
+- The built-in **Modal** uses the standard RSuite dialog adapter (`RsModal`) in the shared designer/viewer registry. Dialogs are centered horizontally and vertically in the viewport, with scrolling for tall content; the full-size option fills the viewport. Adding a Modal selects it automatically; Settings → Modal also exposes it. Set the Modal template to a named form, open it with `openModal` and its `modalKey`, and close it with `closeModal`, Escape, or the backdrop. Size, focus, backdrop, keyboard behavior, and open/close events remain editable in the native modal properties.
+- The palette contains **61 components**: the complete RSuite catalog, table components, rich text, signature, QR code, print controls, Google Maps, FormEngine's built-in structure/template components, and the existing Persian controls. Designer and viewer share the same metadata and bundled RTL styles. Modal and error renderers remain available through form settings, as intended by FormEngine.
 - All runtime assets are local; see the asset sections below.
 
 ## Integration decisions
 
 - MUI's Next.js App Router cache provider collects Emotion styles during streaming SSR. HTML `lang="fa"` / `dir="rtl"`, MUI `direction: 'rtl'`, and the RTL Stylis plugin cover document layout, component styles, and portals. Vazirmatn is bundled locally through Fontsource; no Google Fonts request is needed.
 - FormEngine does not support SSR. The designer runtime is dynamically imported with `ssr: false` from a client boundary. The panel shell and the Home and Forms pages remain independently renderable.
-- The upstream `@react-form-builder/components-material-ui@11.1.0` declares `@mui/material: ^7.3.2` and MUI X 7. This project deliberately uses the documented `define()` API to build a shared **MUI 9 adapter registry**, rather than forcing unsupported peer versions or loading two MUI majors. Existing forms using upstream `MuiTextField` and other `Mui*` names must be migrated to this registry's types before use.
+- The full FormEngine **11.1.0 RSuite component library** and its table, QR, rich-text, signature, print, and Google Maps extensions are registered alongside the custom MUI 9 Persian controls. The upstream `components-material-ui@11.1.0` requires MUI 7 and MUI X 7, so that alternative UI library is not loaded into the MUI 9 panel. Existing forms using upstream `MuiTextField` and other `Mui*` names still require matching adapters or migration.
 - The administration panel uses MUI 9. **The embedded FormEngine designer chrome uses RSuite internally.** Its official Persian translation and RSuite locale are loaded via the `i18n` API. Making the vendor's entire editor chrome MUI requires a separate supported vendor customization effort; changing the form registry does not replace that chrome.
 - One metadata registry feeds the designer, so custom types round-trip correctly. Stable type names are part of your stored schema contract.
+- RSuite controls use the same Persian locale and theme as the designer. Custom Persian controls keep their inline MUI validation messages; other controls retain engine validation messages. The centered `RsModal` adapter replaces only the vendor's renderer of that same type.
 - The Add Form metadata is validated with React Hook Form and a shared Zod schema: the name is required, the code must be a lowercase slug, and the type is restricted to `mobile` or `web`. Errors render inline and block submission until the draft is valid. The bottom action then logs the page data to the console.
 - The Add Form page is a drafting surface: Name, Code, Form Type (`mobile` | `web`) and the designer, with no save action or data table yet. The designer is backed by `MemoryFormRepository`, so drafts stay in page memory and browser storage is untouched. `LocalFormRepository` remains the browser-storage adapter for when persistence is specified. `persistFormName` is off, so the designer does not write its form name to localStorage either.
 
@@ -62,6 +65,16 @@ If Playwright's browser download is unavailable, reuse an installed browser inst
 | `FormSection`   | Ref-compatible container for nested form elements                  |
 | `FormGrid`      | Responsive CSS grid with per-device columns and item spans         |
 | `SubmitButton`  | Event-driven validate-then-submit action                           |
+| `Rs*`          | Full RSuite fields, layout, navigation, modal layout, wizard, table and cell components |
+| `RichTextEditor` | Quill rich-text editor with native toolbar and feature settings |
+| `RsSignature`  | Canvas signature capture and clearing |
+| `FastQR`       | QR generation using a same-origin WebAssembly asset |
+| `PageBreak`, `PrintSettings` | Print page breaks, headers, footers and page numbers |
+| `GoogleMap`    | Map and marker configuration; live maps require a Google API key and network setup |
+
+Google Maps initially shows its missing-key message without contacting Google. To display a live map, supply your Google Maps API key and explicitly allow the required Google services in `src/config/resource-policy.ts`; the default same-origin policy does not enable external map loading. Upload controls likewise need a configured upload endpoint; no backend is added by registering them.
+
+FastQR's `?url` WebAssembly import is configured as a Turbopack asset in `next.config.ts`. Next.js emits the `.wasm` file into its own static assets, so QR generation requires no CDN or separate asset copy step.
 
 Numeric fields accept English, Persian, and Arabic digits and keep their engine values as English digit **strings**. Identifiers preserve leading zeroes; amounts avoid JavaScript floating-point precision loss. The submission boundary recursively normalizes string digits without modifying object keys or primitive types. Extend formatting separately for decimal or negative currency amounts if needed.
 
@@ -104,7 +117,7 @@ Dependency versions and APIs were checked when this project was generated. The l
 
 - Production build, strict TypeScript check, and ESLint passed.
 - Ten unit tests passed, including session-only draft storage, required-marker splitting, Zod draft validation, and responsive grid column/span math.
-- Eleven Chromium integration tests passed with external traffic blocked and audited: the two-page horizontal navigation at full width, Forms → Create Form → Add Form, the designer spanning the panel width with a scrollable canvas and locally served Monaco, metadata validation with Zod plus console page-data logging, the fullscreen/window toggle with vendor overlays above it, Persian designer built-ins and settings (including the شبکه component), mobile drawer navigation without horizontal overflow, designer-aligned theme tokens and header z-index, the header theme button switching the panel and designer together with the shared typeface, and the same-origin CSP with bundled Vazirmatn.
+- Eighteen Chromium integration tests passed with external traffic blocked and audited. Coverage includes the 61-component palette, native field interaction and validation, local QR WebAssembly, rich-text editing, signature drawing and clearing, table data, print settings, the missing-key map state, centered/fullscreen modal behavior, and the existing panel, metadata, localization, theme, navigation, and locally served Monaco checks.
 - Home, Forms, and Add Form were rendered and visually inspected at desktop, tablet, and mobile sizes, in light and dark modes, including the fullscreen designer and the responsive grid in each device mode and preview.
 
 The designer was tested without a supplied license. License activation and deployment-domain checks require your own valid key.
@@ -152,10 +165,11 @@ This setting applies to all asset classes in the included panel and designer:
 | Icons                                                      | Component/package source                 | Bundled SVGs and locally rendered symbols                       |
 | Persian designer translation and RSuite locale             | Installed designer/RSuite packages       | Application JavaScript bundles                                  |
 | Monaco scripts, CSS, language modules, fonts, workers      | Pinned local `monaco-editor` package     | `public/vendor/monaco/0.55.1/vs/`, with local/blob workers      |
+| QR WebAssembly                                             | Pinned `fast_qr` dependency                | Same-origin `/_next/static/` asset emitted by Turbopack       |
 | Form definitions                                           | Page-memory drafts                       | Local data; no hosted form service                              |
 
 `src/config/resource-policy.ts` defines a Content Security Policy, sent through `next.config.ts`, that permits same-origin resource loading and rejects external runtime origins. Data/blob URLs are allowed where embedded styles, images, and workers need them. Inline styles/scripts and evaluation remain permitted for the current framework/editor behavior; this policy enforces the local-asset requirement rather than being a full strict-CSP configuration. API connections are also same-origin; add a same-origin API route or reverse proxy when connecting a separate backend.
 
-`tests/e2e/fixtures.ts` audits all browser tests, not only Monaco: it denies external HTTP/HTTPS traffic, records attempted outbound requests, and checks CSP violations. The included seven browser tests pass with this audit enabled. This prevents a blocked CDN dependency from being mistaken for successful local hosting. The tested scope is the included component registry and flows; external services introduced by future custom components need equivalent local handling.
+`tests/e2e/fixtures.ts` audits all browser tests, not only Monaco: it denies external HTTP/HTTPS traffic, records attempted outbound requests, and checks CSP violations. All eighteen browser tests pass with this audit enabled. This prevents a blocked CDN dependency from being mistaken for successful local hosting. Configured Google Maps, remote content URLs, and other external integrations require their own explicit network policy; the tests use the map's missing-key state.
 
 Runtime use needs no third-party CDN access. Initial package installation still downloads dependencies from your configured pnpm registry unless they are already cached or served by your internal registry. Documentation/pricing links remain normal links; they are not automatically fetched assets.
