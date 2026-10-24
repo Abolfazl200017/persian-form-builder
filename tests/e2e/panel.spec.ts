@@ -50,6 +50,23 @@ test('designer spans the panel width and loads Monaco locally', async ({ page })
   expect(designer!.x).toBeGreaterThanOrEqual(main!.x);
   expect(designer!.width).toBeGreaterThan(main!.width * 0.95);
   expect(designer!.width).toBeGreaterThan(1450);
+  const canvas = page.locator('.engine-host .FE_FormContainer');
+  await expect(canvas).toHaveCSS('overflow-y', 'auto');
+  expect(
+    await page.evaluate(() => {
+      const container = document.querySelector('.engine-host .FE_FormContainer');
+      if (!container) return false;
+      const probe = document.createElement('div');
+      probe.style.height = '1600px';
+      probe.style.flex = '0 0 auto';
+      container.appendChild(probe);
+      container.scrollTop = 500;
+      const scrolled = container.scrollTop > 0;
+      probe.remove();
+      container.scrollTop = 0;
+      return scrolled;
+    }),
+  ).toBe(true);
   await page.getByRole('button', { name: 'ویرایش JSON' }).click();
   await expect(page.locator('.monaco-editor').first()).toBeVisible();
   await expect(page.locator('.monaco-editor .view-lines').first()).toContainText('Screen');
