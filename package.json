@@ -30,7 +30,7 @@
     "@mui/stylis-plugin-rtl": "^9.5.0",
     "@react-form-builder/core": "11.1.0",
     "@react-form-builder/designer": "11.1.0",
-    "next": "16.4.0",
+    "next": "16.4.3",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "rsuite": "5.83.4",
