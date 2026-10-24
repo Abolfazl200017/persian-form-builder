@@ -18,6 +18,12 @@ pre {
 .engine-host {
   min-width: 0;
 }
+/* The designer resets pseudo-elements to content-box, enlarging the radio ring. */
+html[dir='rtl'] .rs-radio-control::before,
+html[dir='rtl'] .rs-radio-inner::before,
+html[dir='rtl'] .rs-radio-inner::after {
+  box-sizing: border-box;
+}
 /* Keep the designer chrome on the panel typeface; Monaco keeps its code font. */
 .engine-host,
 .engine-host :not(.monaco-editor):not(.monaco-editor *),

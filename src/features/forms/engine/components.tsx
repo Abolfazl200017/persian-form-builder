@@ -23,6 +23,7 @@ import { splitRequiredLabel } from '@/lib/labels';
 import { useGridItem } from './grid';
 import type { GridSpanProps } from './grid-math';
 import { persianRsuiteLocale } from './rsuite-locale';
+import rtlStyles from './rtl.module.css';
 
 export function FieldLabel({ label }: { label: string }) {
   const { text, separator, required } = splitRequiredLabel(label);
@@ -295,7 +296,7 @@ export function ViewerWrapper({ children }: { children?: ReactNode }) {
   return (
     <CustomProvider theme={theme} rtl locale={persianRsuiteLocale}>
       <Box
-        className="rsuite"
+        className={`rsuite ${rtlStyles.rtl}`}
         dir="rtl"
         sx={{
           '& > div': { gap: 2 },

@@ -1,0 +1,36 @@
+/* Vendor label styles use physical left alignment even in the RTL bundle. */
+.rtl label {
+  text-align: start;
+}
+
+.rtl :global(.ql-editor) {
+  direction: rtl;
+  text-align: start;
+}
+
+.rtl :global(.ql-editor ol),
+.rtl :global(.ql-editor li) {
+  padding-inline-start: 1.5em;
+  padding-inline-end: 0;
+}
+
+.rtl :global(.ql-editor li > .ql-ui::before) {
+  margin-inline-start: -1.5em;
+  margin-inline-end: 0.3em;
+  text-align: end;
+}
+
+.rtl :global(.ql-snow .ql-picker-label) {
+  padding-inline-start: 8px;
+  padding-inline-end: 18px;
+}
+
+.rtl :global(.ql-snow .ql-picker:not(.ql-color-picker):not(.ql-icon-picker) svg) {
+  inset-inline-start: auto;
+  inset-inline-end: 0;
+}
+
+.rtl :global(.ql-snow .ql-picker-options) {
+  inset-inline-start: 0;
+  inset-inline-end: auto;
+}
