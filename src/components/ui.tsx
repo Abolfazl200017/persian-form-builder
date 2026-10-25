@@ -35,8 +35,9 @@ export const Button = forwardRef<
 export function Input({ className = '', ...props }: InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
-      className={`flex h-10 w-full min-w-0 rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 ${focus} ${className}`}
+      className={`flex h-10 w-full min-w-0 rounded-md border border-input bg-background px-3 py-2 text-right text-sm shadow-sm placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 ${focus} ${className}`}
       {...props}
+      dir="rtl"
     />
   );
 }
@@ -46,16 +47,18 @@ export function Textarea({
 }: TextareaHTMLAttributes<HTMLTextAreaElement>) {
   return (
     <textarea
-      className={`flex min-h-24 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 ${focus} ${className}`}
+      className={`flex min-h-24 w-full rounded-md border border-input bg-background px-3 py-2 text-right text-sm shadow-sm placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 ${focus} ${className}`}
       {...props}
+      dir="rtl"
     />
   );
 }
 export function Select({ className = '', ...props }: SelectHTMLAttributes<HTMLSelectElement>) {
   return (
     <select
-      className={`flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm ${focus} ${className}`}
+      className={`flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-right text-sm shadow-sm ${focus} ${className}`}
       {...props}
+      dir="rtl"
     />
   );
 }

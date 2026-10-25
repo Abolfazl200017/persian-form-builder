@@ -67,7 +67,7 @@ function Field({
   const error = useErrorMessage();
   return (
     <div ref={rootRef} className={`grid min-w-0 gap-2 py-1 ${className ?? ''}`} style={style}>
-      {label && <Label>{labelNode(label)}</Label>}
+      <div className="flex min-h-5 items-center">{label && <Label>{labelNode(label)}</Label>}</div>
       {multiline ? (
         <Textarea
           value={value}
@@ -75,7 +75,6 @@ function Field({
           placeholder={placeholder}
           disabled={disabled}
           readOnly={readOnly}
-          dir="rtl"
         />
       ) : (
         <Input
@@ -85,14 +84,11 @@ function Field({
           placeholder={placeholder}
           disabled={disabled}
           readOnly={readOnly}
-          dir={inputType === 'email' ? 'ltr' : 'rtl'}
         />
       )}
-      {error && (
-        <span role="alert" className="text-xs text-destructive">
-          {error}
-        </span>
-      )}
+      <div className="min-h-4 text-xs text-destructive" aria-live="polite">
+        {error ?? <span aria-hidden="true">&nbsp;</span>}
+      </div>
     </div>
   );
 }
@@ -121,7 +117,7 @@ export function DigitField({
   const display = amount ? canonical.replace(/\B(?=(\d{3})+(?!\d))/g, '٬') : canonical;
   return (
     <div ref={rootRef} className={`grid min-w-0 gap-2 py-1 ${className ?? ''}`} style={style}>
-      {label && <Label>{labelNode(label)}</Label>}
+      <div className="flex min-h-5 items-center">{label && <Label>{labelNode(label)}</Label>}</div>
       <Input
         value={toPersianDigits(display)}
         onChange={(event) => {
@@ -132,14 +128,11 @@ export function DigitField({
         disabled={disabled}
         readOnly={readOnly}
         inputMode="numeric"
-        dir="ltr"
         className="text-right"
       />
-      {error && (
-        <span role="alert" className="text-xs text-destructive">
-          {error}
-        </span>
-      )}
+      <div className="min-h-4 text-xs text-destructive" aria-live="polite">
+        {error ?? <span aria-hidden="true">&nbsp;</span>}
+      </div>
     </div>
   );
 }
@@ -154,6 +147,8 @@ export function PersianAmount(props: TextProps) {
 }
 const fieldsWithInlineErrors = new Set([
   'PersianText',
+  'ShadcnInput',
+  'ShadcnTextarea',
   'IranMobile',
   'NationalId',
   'PersianAmount',
@@ -162,15 +157,21 @@ const fieldsWithInlineErrors = new Set([
 export function InlineErrorWrapper({ children, error }: ErrorWrapperProps) {
   const { model } = useComponentData();
   const aria = useAriaErrorMessage();
+  const errorIsInsideControl = fieldsWithInlineErrors.has(model.type);
   return (
-    <>
+    <div className="grid min-w-0 content-start gap-1 text-right" dir="rtl">
       {children}
-      {error && !fieldsWithInlineErrors.has(model.type) && (
-        <p className="mt-1 text-xs text-destructive" id={aria['aria-errormessage']} role="alert">
-          {error}
-        </p>
+      {!errorIsInsideControl && (
+        <div
+          className="min-h-4 text-xs text-destructive"
+          id={aria['aria-errormessage']}
+          aria-live="polite"
+          role={error ? 'alert' : undefined}
+        >
+          {error ?? <span aria-hidden="true">&nbsp;</span>}
+        </div>
       )}
-    </>
+    </div>
   );
 }
 export interface ConsentProps extends GridSpanProps {
@@ -195,7 +196,7 @@ export function Consent({
   const error = useErrorMessage();
   return (
     <div ref={ref} className="py-1">
-      <label className="inline-flex cursor-pointer items-center gap-2 text-sm">
+      <label className="inline-flex min-h-5 cursor-pointer items-center gap-2 text-sm" dir="rtl">
         <input
           type="checkbox"
           className="size-4 accent-primary"
@@ -208,7 +209,9 @@ export function Consent({
         />
         {labelNode(label ?? '')}
       </label>
-      {error && <p className="mt-1 text-xs text-destructive">{error}</p>}
+      <div className="min-h-4 text-xs text-destructive" aria-live="polite">
+        {error ?? <span aria-hidden="true">&nbsp;</span>}
+      </div>
     </div>
   );
 }

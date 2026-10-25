@@ -61,6 +61,8 @@ body {
 body {
   background: var(--background);
   color: var(--foreground);
+  direction: rtl;
+  text-align: right;
   font-family: 'Vazirmatn', Tahoma, sans-serif;
 }
 a {
@@ -72,6 +74,12 @@ input,
 select,
 textarea {
   font: inherit;
+}
+input,
+select,
+textarea {
+  direction: rtl;
+  text-align: right;
 }
 pre {
   direction: ltr;

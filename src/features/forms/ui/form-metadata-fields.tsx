@@ -12,17 +12,19 @@ export function FormMetadataFields() {
         name="name"
         control={control}
         render={({ field, fieldState }) => (
-          <div className="grid gap-2">
-            <Label htmlFor="form-name">نام فرم</Label>
+          <div className="grid content-start gap-2 text-right" dir="rtl">
+            <Label className="flex min-h-5 items-center" htmlFor="form-name">
+              نام فرم
+            </Label>
             <Input
               id="form-name"
               {...field}
               placeholder="مثلاً: نظرسنجی رضایت مشتری"
               aria-invalid={!!fieldState.error}
             />
-            {fieldState.error && (
-              <p className="text-xs text-destructive">{fieldState.error.message}</p>
-            )}
+            <div className="min-h-4 text-xs text-destructive" aria-live="polite">
+              {fieldState.error?.message ?? <span aria-hidden="true">&nbsp;</span>}
+            </div>
           </div>
         )}
       />
@@ -30,18 +32,19 @@ export function FormMetadataFields() {
         name="code"
         control={control}
         render={({ field, fieldState }) => (
-          <div className="grid gap-2">
-            <Label htmlFor="form-code">کد فرم</Label>
+          <div className="grid content-start gap-2 text-right" dir="rtl">
+            <Label className="flex min-h-5 items-center" htmlFor="form-code">
+              کد فرم
+            </Label>
             <Input
               id="form-code"
               {...field}
-              dir="ltr"
               placeholder="مثلاً: customer-feedback"
               aria-invalid={!!fieldState.error}
             />
-            {fieldState.error && (
-              <p className="text-xs text-destructive">{fieldState.error.message}</p>
-            )}
+            <div className="min-h-4 text-xs text-destructive" aria-live="polite">
+              {fieldState.error?.message ?? <span aria-hidden="true">&nbsp;</span>}
+            </div>
           </div>
         )}
       />
@@ -49,8 +52,10 @@ export function FormMetadataFields() {
         name="type"
         control={control}
         render={({ field, fieldState }) => (
-          <div className="grid gap-2">
-            <Label htmlFor="form-type">نوع فرم</Label>
+          <div className="grid content-start gap-2 text-right" dir="rtl">
+            <Label className="flex min-h-5 items-center" htmlFor="form-type">
+              نوع فرم
+            </Label>
             <Select id="form-type" {...field}>
               {FORM_TYPES.map((type) => (
                 <option key={type} value={type}>
@@ -58,9 +63,9 @@ export function FormMetadataFields() {
                 </option>
               ))}
             </Select>
-            {fieldState.error && (
-              <p className="text-xs text-destructive">{fieldState.error.message}</p>
-            )}
+            <div className="min-h-4 text-xs text-destructive" aria-live="polite">
+              {fieldState.error?.message ?? <span aria-hidden="true">&nbsp;</span>}
+            </div>
           </div>
         )}
       />
