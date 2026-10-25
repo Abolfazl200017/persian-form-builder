@@ -1,6 +1,6 @@
 # Persian Form Panel
 
-Next.js **16.4.3**, App Router, React 19, TypeScript, **MUI 9.5.0**, FormEngine **11.1.0**, **React Hook Form 7 + Zod 4**, and pnpm. A Persian-first RTL administration panel with a horizontal navigation, Home and Forms pages, and an Add Form page where the FormEngine designer runs at full panel width.
+Next.js **16.4.3**, App Router, React 19, TypeScript, **MUI 7.3.2**, FormEngine **11.1.0**, **React Hook Form 7 + Zod 4**, and pnpm. A Persian-first RTL administration panel with a horizontal navigation, Home and Forms pages, and an Add Form page where the FormEngine designer runs at full panel width.
 
 ## Start
 
@@ -37,8 +37,8 @@ If Playwright's browser download is unavailable, reuse an installed browser inst
 - The **چیدمان** palette includes **شبکه** (Grid): a CSS-grid container with 1–12 columns for mobile, tablet, and desktop. Inputs and layout items expose a column span for each mode. Column counts follow the designer's device mode (with a viewport fallback for standalone rendering), and spans clamp to the active column count. This works in the builder and in preview mode.
 - Field labels ending in `*` render that marker in red. The Add Form page's bottom **ثبت فرم** action validates the metadata with React Hook Form + Zod and logs `{ formName, code, type, jsonData }` to the browser console with a snackbar; nothing is persisted.
 - FormEngine's built-in component names, component properties and form settings are translated to Persian through component-library descriptions and locale overrides, including a few vendor strings that bypass i18n.
-- The built-in **Modal** uses the standard RSuite dialog adapter (`RsModal`) in the shared designer/viewer registry. Dialogs are centered horizontally and vertically in the viewport, with scrolling for tall content; the full-size option fills the viewport. Adding a Modal selects it automatically; Settings → Modal also exposes it. Set the Modal template to a named form, open it with `openModal` and its `modalKey`, and close it with `closeModal`, Escape, or the backdrop. Size, focus, backdrop, keyboard behavior, and open/close events remain editable in the native modal properties.
-- The palette contains **61 components**: the complete RSuite catalog, table components, rich text, signature, QR code, print controls, Google Maps, FormEngine's built-in structure/template components, and the existing Persian controls. Designer and viewer share the same metadata and bundled RTL styles. Modal and error renderers remain available through form settings, as intended by FormEngine.
+- FormEngine's official **MUI component library** is the default palette and renderer for form fields, buttons, dialogs, layout, navigation, and feedback. Its `MuiDialog` renderer supplies centered MUI dialogs in designer and viewer. Adding the built-in Modal selects that renderer automatically; Settings → Modal also exposes it.
+- The palette includes the MUI library, FormEngine's built-in structure/template components, the Persian controls, and specialized table, QR, rich-text, signature, print, and Google Maps add-ons. The table remains the RSuite table add-on because the official MUI library has no table builder. Designer and viewer share the same component metadata; the designer editing chrome continues to use its own RSuite-based UI.
 - Form labels and rich-text content, lists, and picker controls follow RTL in the designer and viewer. Explicit rich-text alignment is preserved, and email/numeric inputs keep their LTR direction. A scoped radio sizing correction prevents the designer's pseudo-element reset from expanding the outer ring and offsetting the selected dot.
 - All runtime assets are local; see the asset sections below.
 
@@ -46,32 +46,33 @@ If Playwright's browser download is unavailable, reuse an installed browser inst
 
 - MUI's Next.js App Router cache provider collects Emotion styles during streaming SSR. HTML `lang="fa"` / `dir="rtl"`, MUI `direction: 'rtl'`, and the RTL Stylis plugin cover document layout, component styles, and portals. Vazirmatn is bundled locally through Fontsource; no Google Fonts request is needed.
 - FormEngine does not support SSR. The designer runtime is dynamically imported with `ssr: false` from a client boundary. The panel shell and the Home and Forms pages remain independently renderable.
-- The full FormEngine **11.1.0 RSuite component library** and its table, QR, rich-text, signature, print, and Google Maps extensions are registered alongside the custom MUI 9 Persian controls. The upstream `components-material-ui@11.1.0` requires MUI 7 and MUI X 7, so that alternative UI library is not loaded into the MUI 9 panel. Existing forms using upstream `MuiTextField` and other `Mui*` names still require matching adapters or migration.
-- The administration panel uses MUI 9. **The embedded FormEngine designer chrome uses RSuite internally.** Its official Persian translation and RSuite locale are loaded via the `i18n` API. Making the vendor's entire editor chrome MUI requires a separate supported vendor customization effort; changing the form registry does not replace that chrome.
+- FormEngine's official `@react-form-builder/components-material-ui@11.1.0` library is registered with MUI 7.3.2, which satisfies its documented peer range. The Next.js cache adapter remains on 9.5.0 to support this project's Next.js 16 version.
+- The administration panel and form controls use MUI. **The embedded FormEngine designer editing chrome uses RSuite internally.** Its Persian designer translation is loaded via the `i18n` API; the selected form components render as MUI.
 - One metadata registry feeds the designer, so custom types round-trip correctly. Stable type names are part of your stored schema contract.
-- RSuite controls use the same Persian locale and theme as the designer. Custom Persian controls keep their inline MUI validation messages; other controls retain engine validation messages. The centered `RsModal` adapter replaces only the vendor's renderer of that same type.
+- MUI controls use the application's Persian MUI theme and locale. Custom Persian controls keep their inline validation messages; other controls retain engine validation messages. The MUI date picker receives FormEngine's selected language through the localization wrapper.
 - The Add Form metadata is validated with React Hook Form and a shared Zod schema: the name is required, the code must be a lowercase slug, and the type is restricted to `mobile` or `web`. Errors render inline and block submission until the draft is valid. The bottom action then logs the page data to the console.
 - The Add Form page is a drafting surface: Name, Code, Form Type (`mobile` | `web`) and the designer, with no save action or data table yet. The designer is backed by `MemoryFormRepository`, so drafts stay in page memory and browser storage is untouched. `LocalFormRepository` remains the browser-storage adapter for when persistence is specified. `persistFormName` is off, so the designer does not write its form name to localStorage either.
 
 ## Components
 
-| Stored type     | Purpose                                                            |
-| --------------- | ------------------------------------------------------------------ |
-| `PersianText`   | Text, email, and multiline input                                   |
-| `IranMobile`    | Persian numeral display with canonical 11-digit mobile values      |
-| `NationalId`    | 10-digit identifier preserving leading zeroes; checksum validation |
-| `PersianAmount` | Integer amount with Persian numerals and thousands separators      |
-| `Consent`       | Boolean acceptance with optional required acceptance rule          |
-| `SectionTitle`  | Section heading and description                                    |
-| `FormSection`   | Ref-compatible container for nested form elements                  |
-| `FormGrid`      | Responsive CSS grid with per-device columns and item spans         |
-| `SubmitButton`  | Event-driven validate-then-submit action                           |
-| `Rs*`          | Full RSuite fields, layout, navigation, modal layout, wizard, table and cell components |
-| `RichTextEditor` | Quill rich-text editor with native toolbar and feature settings |
-| `RsSignature`  | Canvas signature capture and clearing |
-| `FastQR`       | QR generation using a same-origin WebAssembly asset |
-| `PageBreak`, `PrintSettings` | Print page breaks, headers, footers and page numbers |
-| `GoogleMap`    | Map and marker configuration; live maps require a Google API key and network setup |
+| Stored type                  | Purpose                                                                                    |
+| ---------------------------- | ------------------------------------------------------------------------------------------ |
+| `PersianText`                | Text, email, and multiline input                                                           |
+| `IranMobile`                 | Persian numeral display with canonical 11-digit mobile values                              |
+| `NationalId`                 | 10-digit identifier preserving leading zeroes; checksum validation                         |
+| `PersianAmount`              | Integer amount with Persian numerals and thousands separators                              |
+| `Consent`                    | Boolean acceptance with optional required acceptance rule                                  |
+| `SectionTitle`               | Section heading and description                                                            |
+| `FormSection`                | Ref-compatible container for nested form elements                                          |
+| `FormGrid`                   | Responsive CSS grid with per-device columns and item spans                                 |
+| `SubmitButton`               | Event-driven validate-then-submit action                                                   |
+| `Mui*`                       | FormEngine's MUI fields, layout, navigation, dialogs, feedback and data display components |
+| `RsTable`*                   | Specialized RSuite table, column and cell controls; the only RSuite form add-on retained   |
+| `RichTextEditor`             | Quill rich-text editor with native toolbar and feature settings                            |
+| `RsSignature`                | Canvas signature capture and clearing                                                      |
+| `FastQR`                     | QR generation using a same-origin WebAssembly asset                                        |
+| `PageBreak`, `PrintSettings` | Print page breaks, headers, footers and page numbers                                       |
+| `GoogleMap`                  | Map and marker configuration; live maps require a Google API key and network setup         |
 
 Google Maps initially shows its missing-key message without contacting Google. To display a live map, supply your Google Maps API key and explicitly allow the required Google services in `src/config/resource-policy.ts`; the default same-origin policy does not enable external map loading. Upload controls likewise need a configured upload endpoint; no backend is added by registering them.
 
@@ -83,7 +84,7 @@ Numeric fields accept English, Persian, and Arabic digits and keep their engine 
 
 - `src/app`: routes (`/`, `/forms`, `/forms/new`), layout, providers, error pages, and the app icon.
 - `src/components`: horizontal app shell, link button, and inline icons.
-- `src/theme`: shared MUI tokens and component defaults aligned with RSuite.
+- `src/theme`: shared MUI tokens and component defaults.
 - `src/features/forms/domain`: starter document, Zod draft schema, sample schema, form boundary guard, validation, and repository interface. No engine or UI dependency.
 - `src/features/forms/infrastructure`: browser-storage and session-only repositories.
 - `src/features/forms/engine`: component adapters, responsive grid, registry, Persian localization, validators, Monaco setup, and designer storage bridge.
@@ -118,7 +119,7 @@ Dependency versions and APIs were checked when this project was generated. The l
 
 - Production build, strict TypeScript check, and ESLint passed.
 - Ten unit tests passed, including session-only draft storage, required-marker splitting, Zod draft validation, and responsive grid column/span math.
-- Nineteen Chromium integration tests passed with external traffic blocked and audited. Coverage includes RTL labels and rich text, radio-dot centering in designer/preview across themes and sizes, the 61-component palette, native field interaction and validation, local QR WebAssembly, rich-text editing, signature drawing and clearing, table data, print settings, the missing-key map state, centered/fullscreen modal behavior, and the existing panel, metadata, localization, theme, navigation, and locally served Monaco checks.
+- Before the MUI library migration, nineteen Chromium integration tests passed against the previous RSuite palette. Their component and modal fixtures need migration before those results apply to the current MUI palette. `pnpm typecheck` passes with the current MUI setup.
 - Home, Forms, and Add Form were rendered and visually inspected at desktop, tablet, and mobile sizes, in light and dark modes, including the fullscreen designer and the responsive grid in each device mode and preview.
 
 The designer was tested without a supplied license. License activation and deployment-domain checks require your own valid key.
@@ -161,12 +162,12 @@ This setting applies to all asset classes in the included panel and designer:
 | Asset                                                      | Local source                             | Runtime delivery                                                |
 | ---------------------------------------------------------- | ---------------------------------------- | --------------------------------------------------------------- |
 | Next.js, React, MUI, Emotion, Core and designer JavaScript | pnpm dependencies and application source | Application's `/_next/static/` bundles                          |
-| MUI/RSuite/FormEngine styles                               | Package/app source                       | Same-origin bundles, inline styles, or embedded data-URL styles |
+| MUI/FormEngine styles                                      | Package/app source                       | Same-origin bundles, inline styles, or embedded data-URL styles |
 | Persian fonts (Vazirmatn)                                  | `@fontsource/vazirmatn` package          | Application's hashed font files                                 |
 | Icons                                                      | Component/package source                 | Bundled SVGs and locally rendered symbols                       |
-| Persian designer translation and RSuite locale             | Installed designer/RSuite packages       | Application JavaScript bundles                                  |
+| Persian designer and MUI component translations            | Installed designer/MUI packages          | Application JavaScript bundles                                  |
 | Monaco scripts, CSS, language modules, fonts, workers      | Pinned local `monaco-editor` package     | `public/vendor/monaco/0.55.1/vs/`, with local/blob workers      |
-| QR WebAssembly                                             | Pinned `fast_qr` dependency                | Same-origin `/_next/static/` asset emitted by Turbopack       |
+| QR WebAssembly                                             | Pinned `fast_qr` dependency              | Same-origin `/_next/static/` asset emitted by Turbopack         |
 | Form definitions                                           | Page-memory drafts                       | Local data; no hosted form service                              |
 
 `src/config/resource-policy.ts` defines a Content Security Policy, sent through `next.config.ts`, that permits same-origin resource loading and rejects external runtime origins. Data/blob URLs are allowed where embedded styles, images, and workers need them. Inline styles/scripts and evaluation remain permitted for the current framework/editor behavior; this policy enforces the local-asset requirement rather than being a full strict-CSP configuration. API connections are also same-origin; add a same-origin API route or reverse proxy when connecting a separate backend.

@@ -12,17 +12,16 @@ import {
 } from '@mui/material';
 import {
   useAriaErrorMessage,
-  useBuilderTheme,
   useComponentData,
   useErrorMessage,
   type ErrorWrapperProps,
+  type FormViewerWrapperComponentProps,
 } from '@react-form-builder/core';
-import { CustomProvider } from 'rsuite';
+import { MuiLocalizationProvider } from '@react-form-builder/components-material-ui';
 import { toEnglishDigits, toPersianDigits } from '@/lib/digits';
 import { splitRequiredLabel } from '@/lib/labels';
 import { useGridItem } from './grid';
 import type { GridSpanProps } from './grid-math';
-import { persianRsuiteLocale } from './rsuite-locale';
 import rtlStyles from './rtl.module.css';
 
 export function FieldLabel({ label }: { label: string }) {
@@ -291,12 +290,11 @@ export const FormSection = forwardRef<HTMLDivElement, FormSectionProps>(function
     </Stack>
   );
 });
-export function ViewerWrapper({ children }: { children?: ReactNode }) {
-  const theme = useBuilderTheme();
+export function ViewerWrapper({ children, language }: FormViewerWrapperComponentProps) {
   return (
-    <CustomProvider theme={theme} rtl locale={persianRsuiteLocale}>
+    <MuiLocalizationProvider language={language}>
       <Box
-        className={`rsuite ${rtlStyles.rtl}`}
+        className={rtlStyles.rtl}
         dir="rtl"
         sx={{
           '& > div': { gap: 2 },
@@ -306,6 +304,6 @@ export function ViewerWrapper({ children }: { children?: ReactNode }) {
       >
         {children}
       </Box>
-    </CustomProvider>
+    </MuiLocalizationProvider>
   );
 }

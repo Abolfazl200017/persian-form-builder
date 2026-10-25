@@ -1,7 +1,6 @@
 import { BiDi, Language } from '@react-form-builder/core';
 import type { FormBuilderI18n } from '@react-form-builder/designer';
 import fa from '@react-form-builder/designer/locales/fa-IR.json';
-import { persianRsuiteLocale } from './rsuite-locale';
 
 type Bundle = Record<string, unknown>;
 
@@ -57,5 +56,5 @@ const data = mergeBundle(fa as Bundle, overrides);
 
 export const designerI18n: FormBuilderI18n = {
   languages: [new Language('fa', 'IR', 'فارسی', 'فارسی ایران', BiDi.RTL)],
-  getData: async () => ({ data, componentsLocale: persianRsuiteLocale }),
+  getData: async () => ({ data }),
 };

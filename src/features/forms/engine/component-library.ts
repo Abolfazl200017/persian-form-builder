@@ -1,7 +1,7 @@
 import {
-  rSuiteComponents,
-  rSuiteComponentsDescriptions,
-} from '@react-form-builder/components-rsuite';
+  muiComponents,
+  muiFaIrComponentsDescriptions,
+} from '@react-form-builder/components-material-ui';
 import {
   rSuiteTableComponents,
   rSuiteTableComponentsDescriptions,
@@ -29,9 +29,9 @@ import '@react-form-builder/components-signature/assets/styles.css';
 import '@react-form-builder/components-print/assets/styles.css';
 import '@react-form-builder/components-google-map/assets/styles.css';
 
-/** The centered RsModal adapter is registered separately under the native type. */
+/** MUI is the default form library; these add-on controls have no MUI equivalent. */
 export const libraryComponents = [
-  ...rSuiteComponents.filter((component) => component.getType() !== 'RsModal'),
+  ...muiComponents,
   ...rSuiteTableComponents,
   ...printComponents,
   fastQrComponent,
@@ -41,7 +41,7 @@ export const libraryComponents = [
 ].map((component) => component.build());
 
 export const libraryDescriptions = [
-  rSuiteComponentsDescriptions,
+  muiFaIrComponentsDescriptions,
   rSuiteTableComponentsDescriptions,
   fastQrComponentsDescriptions,
   richTextEditorComponentsDescriptions,

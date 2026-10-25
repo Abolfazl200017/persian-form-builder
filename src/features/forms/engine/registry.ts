@@ -1,6 +1,5 @@
 import {
   boolean,
-  BiDi,
   BuilderView,
   createView,
   define,
@@ -12,7 +11,6 @@ import {
   string,
   type ComponentLibraryDescription,
 } from '@react-form-builder/core';
-import { ltrCssLoader, rtlCssLoader } from '@react-form-builder/components-rsuite/css-loader';
 import {
   Consent,
   FormSection,
@@ -25,7 +23,6 @@ import {
   ViewerWrapper,
 } from './components';
 import { FormGrid } from './grid';
-import { rsModal } from './modal';
 import { libraryComponents, libraryDescriptions } from './component-library';
 
 const countOptions = Array.from({ length: 12 }, (_, index) => String(index + 1));
@@ -50,7 +47,6 @@ const textProps = {
   ...gridSpanProps,
 };
 const definitions = [
-  rsModal,
   define(PersianText, 'PersianText')
     .name('ورودی متن')
     .category('ورودی‌ها')
@@ -126,10 +122,9 @@ export const componentMetadata = [
   ...libraryComponents,
   ...definitions.map((definition) => definition.build()),
 ];
-export const viewerView = createView(componentMetadata.map((component) => component.model))
-  .withViewerWrapper(ViewerWrapper)
-  .withCssLoader(BiDi.LTR, ltrCssLoader)
-  .withCssLoader(BiDi.RTL, rtlCssLoader);
+export const viewerView = createView(
+  componentMetadata.map((component) => component.model),
+).withViewerWrapper(ViewerWrapper);
 
 /** Persian titles for the designer's built-in components and shared properties. */
 const persianComponentLibrary: Record<string, ComponentLibraryDescription> = {
@@ -162,9 +157,7 @@ const persianComponentLibrary: Record<string, ComponentLibraryDescription> = {
 
 export const builderView = new BuilderView(componentMetadata)
   .withTemplates([])
-  .withViewerWrapper(ViewerWrapper)
-  .withCssLoader(BiDi.LTR, ltrCssLoader)
-  .withCssLoader(BiDi.RTL, rtlCssLoader);
+  .withViewerWrapper(ViewerWrapper);
 
 for (const description of libraryDescriptions) {
   builderView.withComponentLibraryDescription(description);
