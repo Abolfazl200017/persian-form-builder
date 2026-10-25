@@ -29,13 +29,13 @@ const countOptions = Array.from({ length: 12 }, (_, index) => String(index + 1))
 const gridSpanProps = {
   mobileSpan: oneOf(...countOptions)
     .default('1')
-    .named('ستون در موبایل'),
+    .named('گستره ستون در موبایل'),
   tabletSpan: oneOf(...countOptions)
     .default('1')
-    .named('ستون در تبلت'),
+    .named('گستره ستون در تبلت'),
   desktopSpan: oneOf(...countOptions)
     .default('1')
-    .named('ستون در دسکتاپ'),
+    .named('گستره ستون در دسکتاپ'),
 };
 const textProps = {
   value: string.valued.uncontrolledValue(''),
@@ -102,6 +102,11 @@ const definitions = [
         .named('ستون‌های دسکتاپ'),
       children: node,
     }),
+  define(FormSection, 'GridItem')
+    .name('عنصر شبکه')
+    .category('چیدمان')
+    .kind('container')
+    .props({ children: node, ...gridSpanProps }),
   define(FormSection, 'FormSection')
     .name('بخش فرم')
     .category('چیدمان')
