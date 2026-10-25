@@ -1,14 +1,14 @@
 'use client';
 
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FormBuilder } from '@react-form-builder/designer';
 import { createBuilderView } from '../engine/registry';
 import { designerI18n } from '../engine/i18n';
 import { InlineErrorWrapper } from '../engine/components';
 import { validators } from '../engine/validators';
 import { createDesignerStorage } from '../engine/storage-adapter';
-import { MemoryFormRepository } from '../infrastructure/memory-form-repository';
-import { DEFAULT_MODAL_TEMPLATE_NAME, NEW_FORM_NAME } from '../domain/new-form';
+import { LocalFormRepository } from '../infrastructure/local-form-repository';
+import { NEW_FORM_NAME } from '../domain/new-form';
 import { useThemeMode } from '@/theme/theme-mode-provider';
 
 /** Strings that FormEngine renders outside its translation system. */
@@ -81,14 +81,25 @@ function useVendorTranslations() {
 
 export default function DesignerRuntime({
   onSchemaChange,
+  formName = NEW_FORM_NAME,
+  persistFormName = true,
 }: {
   onSchemaChange?: (formSchema: string) => void;
+  formName?: string;
+  persistFormName?: boolean;
 }) {
   const { mode } = useThemeMode();
   useVendorTranslations();
-  const repository = useMemo(() => new MemoryFormRepository(), []);
-  const storage = useMemo(() => createDesignerStorage(repository), [repository]);
-  const view = useMemo(() => createBuilderView([DEFAULT_MODAL_TEMPLATE_NAME]), []);
+  const repository = useMemo(() => new LocalFormRepository(window.localStorage), []);
+  const [view, setView] = useState(() => createBuilderView(repository.listSync()));
+  const refreshForms = useCallback(
+    () => setView(createBuilderView(repository.listSync())),
+    [repository],
+  );
+  const storage = useMemo(
+    () => createDesignerStorage(repository, refreshForms),
+    [repository, refreshForms],
+  );
   const getForm = useCallback(
     (name?: string) => repository.load(name?.trim() || NEW_FORM_NAME),
     [repository],
@@ -100,9 +111,9 @@ export default function DesignerRuntime({
       theme={mode}
       customization={{ ToggleThemeButton: { hidden: true } }}
       getForm={getForm}
-      formName={NEW_FORM_NAME}
+      formName={formName}
       formStorage={storage}
-      persistFormName={false}
+      persistFormName={persistFormName}
       i18n={designerI18n}
       defaultBuilderLanguage="fa-IR"
       defaultViewerLanguage="fa-IR"

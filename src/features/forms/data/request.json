@@ -1,0 +1,51 @@
+{
+  "version": "1",
+  "modalType": "ShadcnModalRenderer",
+  "form": {
+    "key": "Screen",
+    "type": "Screen",
+    "props": {},
+    "children": [
+      {
+        "key": "request-title",
+        "type": "SectionTitle",
+        "props": {
+          "title": { "value": "فرم درخواست" },
+          "description": { "value": "برای مشاهده فرم تکمیلی، دکمه زیر را انتخاب کنید." }
+        }
+      },
+      {
+        "key": "open-details",
+        "type": "ShadcnButton",
+        "props": { "label": { "value": "نمایش فرم تکمیلی" } },
+        "events": {
+          "onClick": [
+            {
+              "name": "openModal",
+              "type": "common",
+              "args": { "modalKey": "details-modal" }
+            }
+          ]
+        }
+      },
+      {
+        "key": "details-modal",
+        "type": "Modal",
+        "props": { "modalTemplate": { "value": "Template:request-details" } }
+      },
+      {
+        "key": "request-name",
+        "type": "ShadcnInput",
+        "props": {
+          "label": { "value": "نام و نام خانوادگی" },
+          "placeholder": { "value": "نام خود را وارد کنید" }
+        }
+      }
+    ]
+  },
+  "localization": {},
+  "languages": [
+    { "code": "fa", "dialect": "IR", "name": "فارسی", "description": "فارسی ایران", "bidi": "rtl" }
+  ],
+  "defaultLanguage": "fa-IR"
+}

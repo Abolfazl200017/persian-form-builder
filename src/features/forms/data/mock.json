@@ -1,0 +1,53 @@
+{
+  "version": "1",
+  "modalType": "ShadcnModalRenderer",
+  "form": {
+    "key": "Screen",
+    "type": "Screen",
+    "props": {},
+    "children": [
+      {
+        "key": "mock-title",
+        "type": "SectionTitle",
+        "props": {
+          "title": { "value": "فرم آزمایشی مودال" },
+          "description": { "value": "این فرم نمونه، محتوای مودال را از یک فایل JSON جداگانه بارگذاری می‌کند." }
+        }
+      },
+      {
+        "key": "mock-name",
+        "type": "ShadcnInput",
+        "props": {
+          "label": { "value": "نام شما" },
+          "placeholder": { "value": "نام خود را وارد کنید" }
+        }
+      },
+      {
+        "key": "open-mock-modal",
+        "type": "ShadcnButton",
+        "props": { "label": { "value": "باز کردن مودال" } },
+        "events": {
+          "onClick": [
+            {
+              "name": "openModal",
+              "type": "common",
+              "args": { "modalKey": "mock-modal" }
+            }
+          ]
+        }
+      },
+      {
+        "key": "mock-modal",
+        "type": "Modal",
+        "props": {
+          "modalTemplate": { "value": "Template:mock-modal-content" }
+        }
+      }
+    ]
+  },
+  "localization": {},
+  "languages": [
+    { "code": "fa", "dialect": "IR", "name": "فارسی", "description": "فارسی ایران", "bidi": "rtl" }
+  ],
+  "defaultLanguage": "fa-IR"
+}

@@ -1,0 +1,41 @@
+{
+  "version": "1",
+  "form": {
+    "key": "Screen",
+    "type": "Screen",
+    "props": {},
+    "children": [
+      {
+        "key": "details-title",
+        "type": "SectionTitle",
+        "props": {
+          "title": { "value": "جزئیات درخواست" },
+          "description": { "value": "این فرم جداگانه به‌عنوان محتوای مودال بارگذاری شده است." }
+        }
+      },
+      {
+        "key": "details-description",
+        "type": "ShadcnTextarea",
+        "props": {
+          "label": { "value": "توضیحات" },
+          "placeholder": { "value": "جزئیات بیشتری بنویسید" }
+        }
+      },
+      {
+        "key": "details-submit",
+        "type": "SubmitButton",
+        "props": { "label": { "value": "ثبت جزئیات" } },
+        "events": {
+          "onClick": [
+            { "name": "closeModal", "type": "common", "args": {} }
+          ]
+        }
+      }
+    ]
+  },
+  "localization": {},
+  "languages": [
+    { "code": "fa", "dialect": "IR", "name": "فارسی", "description": "فارسی ایران", "bidi": "rtl" }
+  ],
+  "defaultLanguage": "fa-IR"
+}

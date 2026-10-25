@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { CollapseIcon, ExpandIcon } from '@/components/icons';
 import { Button } from '@/components/ui';
 import { EngineBoundary } from './engine-boundary';
+import { NEW_FORM_NAME } from '../domain/new-form';
 const DesignerRuntime = dynamic(
   async () => {
     const { configureMonaco } = await import('../engine/monaco');
@@ -22,8 +23,12 @@ const DesignerRuntime = dynamic(
 );
 export function FormDesigner({
   onSchemaChange,
+  initialFormName = NEW_FORM_NAME,
+  persistFormName = true,
 }: {
   onSchemaChange?: (formSchema: string) => void;
+  initialFormName?: string;
+  persistFormName?: boolean;
 }) {
   const [fullscreen, setFullscreen] = useState(false);
   const exitButtonRef = useRef<HTMLButtonElement>(null);
@@ -77,7 +82,11 @@ export function FormDesigner({
           className={`engine-host glass-frame min-w-0 overflow-hidden p-2 md:p-3 ${fullscreen ? 'min-h-0 flex-1' : 'h-[760px] md:h-[calc(100dvh-420px)] md:min-h-[560px]'}`}
           dir="rtl"
         >
-          <DesignerRuntime onSchemaChange={onSchemaChange} />
+          <DesignerRuntime
+            onSchemaChange={onSchemaChange}
+            formName={initialFormName}
+            persistFormName={persistFormName}
+          />
         </div>
       </EngineBoundary>
     </section>

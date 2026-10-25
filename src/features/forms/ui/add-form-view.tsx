@@ -1,15 +1,18 @@
 'use client';
 import Link from 'next/link';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FormProvider, useForm } from 'react-hook-form';
 import { Button, Card, CardContent } from '@/components/ui';
 import { INITIAL_FORM_DRAFT, formDraftSchema, type FormDraft } from '../domain/form-draft';
 import { parseFormDocument } from '../domain/form-document';
-import { newFormJson } from '../domain/new-form';
+import { NEW_FORM_NAME, newFormJson } from '../domain/new-form';
+import { LocalFormRepository } from '../infrastructure/local-form-repository';
 import { FormDesigner } from './form-designer';
 import { FormMetadataFields } from './form-metadata-fields';
 export function AddFormView() {
+  const router = useRouter();
   const [schema, setSchema] = useState(newFormJson);
   const [feedback, setFeedback] = useState('');
   const methods = useForm<FormDraft>({
@@ -17,20 +20,15 @@ export function AddFormView() {
     defaultValues: INITIAL_FORM_DRAFT,
     mode: 'onTouched',
   });
-  function submitForm(data: FormDraft) {
+  async function submitForm(data: FormDraft) {
     try {
       parseFormDocument(schema);
-      const payload = {
-        formName: data.name,
-        code: data.code,
-        type: data.type,
-        jsonData: JSON.parse(schema),
-      };
-      console.log('form-data', payload);
-      setFeedback('داده فرم در کنسول ثبت شد.');
+      await new LocalFormRepository(window.localStorage).save(data.code, schema);
+      setFeedback('فرم ذخیره شد.');
+      router.push(`/forms/${encodeURIComponent(data.code)}/edit`);
     } catch (error) {
-      console.error('form-data: the designer returned an invalid form document', error);
-      setFeedback('ساختار فرم معتبر نیست.');
+      console.error('Failed to save form', error);
+      setFeedback(error instanceof Error ? error.message : 'ذخیره فرم انجام نشد.');
     }
   }
   return (
@@ -57,7 +55,11 @@ export function AddFormView() {
           </Card>
         </form>
       </FormProvider>
-      <FormDesigner onSchemaChange={setSchema} />
+      <FormDesigner
+        onSchemaChange={setSchema}
+        initialFormName={NEW_FORM_NAME}
+        persistFormName={false}
+      />
       <div className="flex justify-end">
         <Button type="submit" form="add-form">
           ثبت فرم

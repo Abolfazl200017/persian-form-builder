@@ -1,0 +1,41 @@
+{
+  "version": "1",
+  "form": {
+    "key": "Screen",
+    "type": "Screen",
+    "props": {},
+    "children": [
+      {
+        "key": "mock-modal-title",
+        "type": "SectionTitle",
+        "props": {
+          "title": { "value": "اطلاعات تکمیلی" },
+          "description": { "value": "این محتوا از فایل mock-modal-content.json دریافت شده است." }
+        }
+      },
+      {
+        "key": "mock-modal-phone",
+        "type": "IranMobile",
+        "props": {
+          "label": { "value": "شماره موبایل" },
+          "placeholder": { "value": "۰۹۱۲۳۴۵۶۷۸۹" }
+        }
+      },
+      {
+        "key": "close-mock-modal",
+        "type": "SubmitButton",
+        "props": { "label": { "value": "بستن مودال" } },
+        "events": {
+          "onClick": [
+            { "name": "closeModal", "type": "common", "args": {} }
+          ]
+        }
+      }
+    ]
+  },
+  "localization": {},
+  "languages": [
+    { "code": "fa", "dialect": "IR", "name": "فارسی", "description": "فارسی ایران", "bidi": "rtl" }
+  ],
+  "defaultLanguage": "fa-IR"
+}

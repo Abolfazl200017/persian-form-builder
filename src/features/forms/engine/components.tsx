@@ -4,7 +4,9 @@ import {
   useCallback,
   useEffect,
   useId,
+  useLayoutEffect,
   useRef,
+  useState,
   type CSSProperties,
   type ReactNode,
 } from 'react';
@@ -651,6 +653,31 @@ export function ShadcnModalRenderer({
   handleClose: (data?: unknown) => void;
   children?: ReactNode;
 }) {
+  const [mounted, setMounted] = useState(open);
+  const [visible, setVisible] = useState(false);
+
+  useLayoutEffect(() => {
+    let frame = 0;
+    let enterFrame = 0;
+    let timer = 0;
+
+    if (open) {
+      frame = window.requestAnimationFrame(() => {
+        setMounted(true);
+        enterFrame = window.requestAnimationFrame(() => setVisible(true));
+      });
+    } else {
+      frame = window.requestAnimationFrame(() => setVisible(false));
+      timer = window.setTimeout(() => setMounted(false), 220);
+    }
+
+    return () => {
+      if (frame) window.cancelAnimationFrame(frame);
+      if (enterFrame) window.cancelAnimationFrame(enterFrame);
+      if (timer) window.clearTimeout(timer);
+    };
+  }, [open]);
+
   useEffect(() => {
     if (!open) return;
     const closeOnEscape = (event: KeyboardEvent) => {
@@ -660,13 +687,15 @@ export function ShadcnModalRenderer({
     return () => document.removeEventListener('keydown', closeOnEscape);
   }, [open, handleClose]);
 
-  if (!open || typeof document === 'undefined') return null;
+  if (!mounted || typeof document === 'undefined') return null;
 
   return createPortal(
     <div
       className="formengine-modal-backdrop fixed inset-0 z-[2000] flex items-center justify-center p-4"
+      data-state={visible ? 'open' : 'closed'}
+      aria-hidden={!visible}
       onMouseDown={(event) => {
-        if (event.target === event.currentTarget) handleClose();
+        if (visible && event.target === event.currentTarget) handleClose();
       }}
     >
       <section
@@ -674,7 +703,7 @@ export function ShadcnModalRenderer({
         aria-modal="true"
         aria-label="پنجره محاوره‌ای"
         dir="rtl"
-        className="glass-panel formengine-modal-surface relative flex max-h-[min(88dvh,56rem)] w-[min(94vw,48rem)] flex-col overflow-hidden border border-border text-card-foreground shadow-2xl"
+        className="glass-panel formengine-modal-surface formengine-modal-content relative flex max-h-[min(88dvh,56rem)] w-[min(94vw,48rem)] flex-col overflow-hidden border border-border text-card-foreground shadow-2xl"
       >
         <div className="flex shrink-0 items-center justify-end border-b border-border p-2">
           <Button
