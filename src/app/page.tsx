@@ -1,143 +1,77 @@
 import type { Metadata } from 'next';
-import { Box, Card, CardContent, Stack, Typography } from '@mui/material';
+import { Card, CardContent } from '@/components/ui';
 import { LinkButton } from '@/components/link-button';
 import { CreateFormButton } from '@/features/forms/ui/create-form-button';
-
 export const metadata: Metadata = { title: 'خانه' };
-
 const steps = [
   { title: 'اطلاعات فرم را وارد کنید', text: 'نام، کد و نوع فرم را تعیین کنید.' },
   { title: 'با طراح بصری بسازید', text: 'مؤلفه‌ها را بکشید و ویژگی‌ها را تنظیم کنید.' },
   { title: 'ساختار را آماده کنید', text: 'تعریف فرم به‌صورت JSON قابل انتقال است.' },
 ];
-
 const capabilities = [
   {
     title: 'طراح بصری',
     text: 'کشیدن و رهاکردن مؤلفه‌ها، ویرایش خواص و پیش‌نمایش زنده در یک صفحه.',
   },
-  {
-    title: 'مؤلفه‌های فارسی',
-    text: 'موبایل ایران، کد ملی، مبلغ فارسی و قواعد اعتبارسنجی بومی.',
-  },
-  {
-    title: 'راست‌به‌چپ',
-    text: 'چیدمان، تایپوگرافی و رفتار مؤلفه‌ها هماهنگ با زبان فارسی.',
-  },
+  { title: 'مؤلفه‌های فارسی', text: 'موبایل ایران، کد ملی، مبلغ فارسی و قواعد اعتبارسنجی بومی.' },
+  { title: 'راست‌به‌چپ', text: 'چیدمان، تایپوگرافی و رفتار مؤلفه‌ها هماهنگ با زبان فارسی.' },
 ];
-
 export default function HomePage() {
   return (
-    <Stack spacing={{ xs: 4, md: 5 }}>
-      <Card
-        sx={{
-          backgroundImage:
-            'linear-gradient(135deg, rgba(52, 152, 255, 0.10) 0%, rgba(52, 152, 255, 0) 62%)',
-        }}
-      >
-        <CardContent
-          sx={{
-            display: 'grid',
-            gridTemplateColumns: { xs: '1fr', lg: 'minmax(0, 1.35fr) minmax(300px, 0.65fr)' },
-            alignItems: 'center',
-            gap: { xs: 3, lg: 5 },
-            p: { xs: 3, md: 5 },
-            '&:last-child': { pb: { xs: 3, md: 5 } },
-          }}
-        >
-          <Stack spacing={2} sx={{ minWidth: 0 }}>
-            <Typography variant="overline" color="primary">
-              پنل مدیریت فرم‌های فارسی
-            </Typography>
-            <Typography
-              variant="h4"
-              component="h1"
-              sx={{ fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2rem' }, maxWidth: 620 }}
-            >
-              فرم بسازید، بدون درگیری با کد
-            </Typography>
-            <Typography color="text.secondary" sx={{ maxWidth: 560, fontSize: '0.9375rem' }}>
+    <div className="grid gap-8 md:gap-10">
+      <Card className="bg-[linear-gradient(135deg,rgba(52,152,255,.1),transparent_62%)]">
+        <CardContent className="grid items-center gap-8 p-6 md:p-10 lg:grid-cols-[minmax(0,1.35fr)_minmax(300px,.65fr)]">
+          <div className="grid min-w-0 gap-4">
+            <p className="text-sm font-semibold text-primary">پنل مدیریت فرم‌های فارسی</p>
+            <h1 className="text-2xl font-bold sm:text-3xl">فرم بسازید، بدون درگیری با کد</h1>
+            <p className="max-w-xl text-[.9375rem] text-muted-foreground">
               طراح بصری FormEngine را در کنار مؤلفه‌های فارسی و راست‌به‌چپ دارید؛ از ساخت فرم تا
               آماده‌سازی ساختار JSON.
-            </Typography>
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} sx={{ pt: 1 }}>
+            </p>
+            <div className="flex flex-col gap-3 pt-2 sm:flex-row">
               <CreateFormButton />
-              <LinkButton href="/forms" variant="outlined">
+              <LinkButton href="/forms" variant="outline">
                 مشاهده فرم‌ها
               </LinkButton>
-            </Stack>
-          </Stack>
-
-          <Card sx={{ bgcolor: 'background.paper' }}>
+            </div>
+          </div>
+          <Card>
             <CardContent>
-              <Typography variant="subtitle1" component="h2" sx={{ mb: 2 }}>
-                شروع در سه گام
-              </Typography>
-              <Stack spacing={2}>
+              <h2 className="mb-4 font-semibold">شروع در سه گام</h2>
+              <div className="grid gap-4">
                 {steps.map((step, index) => (
-                  <Stack key={step.title} direction="row" spacing={1.5}>
-                    <Box
-                      aria-hidden
-                      sx={{
-                        display: 'grid',
-                        placeItems: 'center',
-                        flexShrink: 0,
-                        width: 28,
-                        height: 28,
-                        borderRadius: '6px',
-                        bgcolor: 'action.selected',
-                        color: 'primary.main',
-                        fontSize: '0.75rem',
-                        fontWeight: 700,
-                      }}
-                    >
+                  <div key={step.title} className="flex items-start gap-3">
+                    <span className="grid size-7 shrink-0 place-items-center rounded-md bg-muted text-xs font-bold text-primary">
                       {['۰۱', '۰۲', '۰۳'][index]}
-                    </Box>
-                    <Box>
-                      <Typography sx={{ fontSize: '0.875rem', fontWeight: 600 }}>
-                        {step.title}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {step.text}
-                      </Typography>
-                    </Box>
-                  </Stack>
+                    </span>
+                    <div>
+                      <p className="text-sm font-semibold">{step.title}</p>
+                      <p className="text-sm text-muted-foreground">{step.text}</p>
+                    </div>
+                  </div>
                 ))}
-              </Stack>
+              </div>
             </CardContent>
           </Card>
         </CardContent>
       </Card>
-
-      <Box>
-        <Typography variant="h5" component="h2">
-          امکانات پنل
-        </Typography>
-        <Typography color="text.secondary" sx={{ mt: 0.5, mb: 2.5 }}>
+      <section>
+        <h2 className="text-xl font-semibold">امکانات پنل</h2>
+        <p className="mb-5 mt-1 text-muted-foreground">
           هر چیزی که برای ساخت و نگهداری فرم‌های فارسی لازم دارید، در یک فضای کار.
-        </Typography>
-        <Box
-          sx={{
-            display: 'grid',
-            gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))', lg: 'repeat(3, minmax(0, 1fr))' },
-            gap: 2,
-          }}
-        >
+        </p>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {capabilities.map((item, index) => (
             <Card key={item.title}>
               <CardContent>
-                <Typography variant="overline" color="primary">
-                  {['۰۱', '۰۲', '۰۳'][index]}
-                </Typography>
-                <Typography sx={{ my: 0.75, fontWeight: 600 }}>{item.title}</Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {item.text}
-                </Typography>
+                <p className="text-sm font-semibold text-primary">{['۰۱', '۰۲', '۰۳'][index]}</p>
+                <h3 className="my-2 font-semibold">{item.title}</h3>
+                <p className="text-sm text-muted-foreground">{item.text}</p>
               </CardContent>
             </Card>
           ))}
-        </Box>
-      </Box>
-    </Stack>
+        </div>
+      </section>
+    </div>
   );
 }

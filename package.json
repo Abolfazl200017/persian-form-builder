@@ -1,7 +1,7 @@
 {
   "name": "persian-form-panel",
   "version": "1.0.0",
-  "description": "Next.js 16 + MUI Persian RTL FormEngine panel",
+  "description": "Next.js 16 + shadcn/ui and Tailwind Persian RTL FormEngine panel",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -20,18 +20,11 @@
   "packageManager": "pnpm@11.25.0",
   "type": "module",
   "dependencies": {
-    "@emotion/cache": "^11.14.0",
-    "@emotion/react": "^11.14.0",
-    "@emotion/styled": "^11.14.1",
     "@fontsource/vazirmatn": "^5.3.0",
     "@hookform/resolvers": "^6.0.0",
     "@monaco-editor/react": "4.7.0",
-    "@mui/material": "7.3.2",
-    "@mui/material-nextjs": "9.5.0",
-    "@mui/stylis-plugin-rtl": "^7.3.2",
     "@react-form-builder/components-fast-qr": "11.1.0",
     "@react-form-builder/components-google-map": "11.1.0",
-    "@react-form-builder/components-material-ui": "11.1.0",
     "@react-form-builder/components-print": "11.1.0",
     "@react-form-builder/components-rich-text": "11.1.0",
     "@react-form-builder/components-signature": "11.1.0",
@@ -41,7 +34,6 @@
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "react-hook-form": "^7.90.0",
-    "stylis": "^4.4.0",
     "zod": "^4.6.7"
   },
   "devDependencies": {
@@ -49,10 +41,11 @@
     "@types/node": "^26.6.5",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
-    "@types/stylis": "4.2.7",
     "eslint": "^9.39.5",
     "eslint-config-next": "16.4.0",
     "monaco-editor": "0.55.1",
+    "@tailwindcss/postcss": "4.3.3",
+    "tailwindcss": "4.3.3",
     "prettier": "^3.9.10",
     "typescript": "^6.0.3",
     "vitest": "^5.0.4"

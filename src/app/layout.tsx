@@ -8,7 +8,7 @@ import { Providers } from './providers';
 import { AppShell } from '@/components/app-shell';
 export const metadata: Metadata = {
   title: { default: 'فرم‌ساز | پنل مدیریت', template: '%s | فرم‌ساز' },
-  description: 'پنل فارسی طراحی و نمایش فرم با FormEngine و Material UI',
+  description: 'پنل فارسی طراحی و نمایش فرم با FormEngine و shadcn/ui',
 };
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

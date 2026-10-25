@@ -1,18 +1,14 @@
 'use client';
-
 import Link from 'next/link';
-import { Button } from '@mui/material';
 import { PlusIcon } from '@/components/icons';
-
 export function CreateFormButton() {
   return (
-    <Button
-      component={Link}
+    <Link
       href="/forms/new"
-      variant="contained"
-      startIcon={<PlusIcon sx={{ fontSize: 18 }} />}
+      className="inline-flex min-h-9 items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:brightness-95"
     >
+      <PlusIcon className="size-[18px]" />
       ایجاد فرم
-    </Button>
+    </Link>
   );
 }

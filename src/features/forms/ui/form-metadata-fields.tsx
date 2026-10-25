@@ -1,84 +1,69 @@
 'use client';
-
 import { Controller, useFormContext } from 'react-hook-form';
-import { Box, MenuItem, TextField } from '@mui/material';
 import { FORM_TYPES, type FormDraft, type FormType } from '../domain/form-draft';
+import { Input, Label, Select } from '@/components/ui';
 
-export const FORM_TYPE_LABELS: Record<FormType, string> = {
-  mobile: 'موبایل',
-  web: 'وب',
-};
-
+export const FORM_TYPE_LABELS: Record<FormType, string> = { mobile: 'موبایل', web: 'وب' };
 export function FormMetadataFields() {
   const { control } = useFormContext<FormDraft>();
-
   return (
-    <Box
-      sx={{
-        display: 'grid',
-        gridTemplateColumns: { xs: '1fr', md: 'repeat(3, minmax(0, 1fr))' },
-        gap: 2,
-      }}
-    >
+    <div className="grid gap-4 md:grid-cols-3">
       <Controller
         name="name"
         control={control}
-        render={({ field, fieldState }) => {
-          const { ref, ...fieldProps } = field;
-          return (
-            <TextField
-              {...fieldProps}
-              slotProps={{ htmlInput: { ref } }}
-              label="نام فرم"
+        render={({ field, fieldState }) => (
+          <div className="grid gap-2">
+            <Label htmlFor="form-name">نام فرم</Label>
+            <Input
+              id="form-name"
+              {...field}
               placeholder="مثلاً: نظرسنجی رضایت مشتری"
-              required
-              error={!!fieldState.error}
-              helperText={fieldState.error?.message}
+              aria-invalid={!!fieldState.error}
             />
-          );
-        }}
+            {fieldState.error && (
+              <p className="text-xs text-destructive">{fieldState.error.message}</p>
+            )}
+          </div>
+        )}
       />
       <Controller
         name="code"
         control={control}
-        render={({ field, fieldState }) => {
-          const { ref, ...fieldProps } = field;
-          return (
-            <TextField
-              {...fieldProps}
-              slotProps={{ htmlInput: { ref, dir: 'ltr' } }}
-              label="کد فرم"
+        render={({ field, fieldState }) => (
+          <div className="grid gap-2">
+            <Label htmlFor="form-code">کد فرم</Label>
+            <Input
+              id="form-code"
+              {...field}
+              dir="ltr"
               placeholder="مثلاً: customer-feedback"
-              required
-              error={!!fieldState.error}
-              helperText={fieldState.error?.message}
+              aria-invalid={!!fieldState.error}
             />
-          );
-        }}
+            {fieldState.error && (
+              <p className="text-xs text-destructive">{fieldState.error.message}</p>
+            )}
+          </div>
+        )}
       />
       <Controller
         name="type"
         control={control}
-        render={({ field, fieldState }) => {
-          const { ref, ...fieldProps } = field;
-          return (
-            <TextField
-              {...fieldProps}
-              slotProps={{ htmlInput: { ref } }}
-              select
-              label="نوع فرم"
-              error={!!fieldState.error}
-              helperText={fieldState.error?.message}
-            >
+        render={({ field, fieldState }) => (
+          <div className="grid gap-2">
+            <Label htmlFor="form-type">نوع فرم</Label>
+            <Select id="form-type" {...field}>
               {FORM_TYPES.map((type) => (
-                <MenuItem key={type} value={type}>
+                <option key={type} value={type}>
                   {FORM_TYPE_LABELS[type]}
-                </MenuItem>
+                </option>
               ))}
-            </TextField>
-          );
-        }}
+            </Select>
+            {fieldState.error && (
+              <p className="text-xs text-destructive">{fieldState.error.message}</p>
+            )}
+          </div>
+        )}
       />
-    </Box>
+    </div>
   );
 }

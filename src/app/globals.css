@@ -1,12 +1,77 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme inline {
+  --font-sans: 'Vazirmatn', Tahoma, sans-serif;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-destructive: var(--destructive);
+  --color-ring: var(--ring);
+}
+
+:root {
+  color-scheme: light;
+  --background: #f7f7fa;
+  --foreground: #1b1d22;
+  --card: #fff;
+  --card-foreground: #1b1d22;
+  --muted: #f0f1f4;
+  --muted-foreground: #6b7280;
+  --border: #e1e3e8;
+  --input: #e1e3e8;
+  --primary: #3498ff;
+  --primary-foreground: #fff;
+  --destructive: #d92d20;
+  --ring: #3498ff;
+}
+
+.dark {
+  color-scheme: dark;
+  --background: #0f131a;
+  --foreground: #f4f5f7;
+  --card: #1a1d24;
+  --card-foreground: #f4f5f7;
+  --muted: #262a33;
+  --muted-foreground: #a0a5b0;
+  --border: #343943;
+  --input: #343943;
+  --primary: #34a7ff;
+  --primary-foreground: #081521;
+  --destructive: #f97066;
+  --ring: #34a7ff;
+}
+
 * {
   box-sizing: border-box;
 }
+html,
 body {
+  min-height: 100%;
   margin: 0;
+}
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: 'Vazirmatn', Tahoma, sans-serif;
 }
 a {
   color: inherit;
   text-decoration: none;
+}
+button,
+input,
+select,
+textarea {
+  font: inherit;
 }
 pre {
   direction: ltr;
@@ -18,65 +83,10 @@ pre {
 .engine-host {
   min-width: 0;
 }
-/* The designer resets pseudo-elements to content-box, enlarging the radio ring. */
-html[dir='rtl'] .rs-radio-control::before,
-html[dir='rtl'] .rs-radio-inner::before,
-html[dir='rtl'] .rs-radio-inner::after {
-  box-sizing: border-box;
-}
-/* Keep the designer chrome on the panel typeface; Monaco keeps its code font. */
 .engine-host,
-.engine-host :not(.monaco-editor):not(.monaco-editor *),
-body.rs-theme-light
-  :is(
-    .rs-modal,
-    .rs-popover,
-    .rs-picker-menu,
-    .rs-dropdown-menu,
-    .rs-tooltip,
-    .rs-notification,
-    .rs-message
-  ),
-body.rs-theme-dark
-  :is(
-    .rs-modal,
-    .rs-popover,
-    .rs-picker-menu,
-    .rs-dropdown-menu,
-    .rs-tooltip,
-    .rs-notification,
-    .rs-message
-  ),
-body.rs-theme-light
-  :is(
-    .rs-modal,
-    .rs-popover,
-    .rs-picker-menu,
-    .rs-dropdown-menu,
-    .rs-tooltip,
-    .rs-notification,
-    .rs-message
-  )
-  :not(.monaco-editor):not(.monaco-editor *),
-body.rs-theme-dark
-  :is(
-    .rs-modal,
-    .rs-popover,
-    .rs-picker-menu,
-    .rs-dropdown-menu,
-    .rs-tooltip,
-    .rs-notification,
-    .rs-message
-  )
-  :not(.monaco-editor):not(.monaco-editor *) {
+.engine-host :not(.monaco-editor):not(.monaco-editor *) {
   font-family: 'Vazirmatn', Tahoma, sans-serif !important;
 }
-.engine-host input,
-.engine-host textarea,
-.engine-host button {
-  font-family: inherit;
-}
-/* Long forms must scroll inside the designer canvas instead of being clipped. */
 .engine-host .FE_FormContainer {
   overflow-y: auto !important;
   overflow-x: hidden !important;
@@ -86,19 +96,26 @@ body.rs-theme-dark
   width: 8px;
   height: 8px;
 }
-.engine-host .FE_FormContainer::-webkit-scrollbar-track {
-  background: transparent;
-}
 .engine-host .FE_FormContainer::-webkit-scrollbar-thumb {
-  background-color: #c1c4c9;
+  background: #9ca3af;
   border: 1px solid transparent;
   border-radius: 8px;
   background-clip: content-box;
 }
-body.rs-theme-dark .engine-host .FE_FormContainer::-webkit-scrollbar-thumb {
-  background-color: #5c6066;
+body.rs-theme-light .rs-modal,
+body.rs-theme-light .rs-popover,
+body.rs-theme-light .rs-picker-menu,
+body.rs-theme-light .rs-dropdown-menu,
+body.rs-theme-light .rs-tooltip,
+body.rs-theme-light .rs-notification,
+body.rs-theme-dark .rs-modal,
+body.rs-theme-dark .rs-popover,
+body.rs-theme-dark .rs-picker-menu,
+body.rs-theme-dark .rs-dropdown-menu,
+body.rs-theme-dark .rs-tooltip,
+body.rs-theme-dark .rs-notification {
+  font-family: 'Vazirmatn', Tahoma, sans-serif !important;
 }
-/* Keep the designer's portaled pickers, modals and tooltips above the fullscreen shell. */
 body.rs-theme-light .rs-picker-popup,
 body.rs-theme-dark .rs-picker-popup,
 body.rs-theme-light .rs-popover,
@@ -110,14 +127,16 @@ body.rs-theme-dark .rs-tooltip,
 body.rs-theme-light .rs-modal-wrapper,
 body.rs-theme-dark .rs-modal-wrapper,
 body.rs-theme-light .rs-notification,
-body.rs-theme-dark .rs-notification,
-body.rs-theme-light .rs-message,
-body.rs-theme-dark .rs-message {
+body.rs-theme-dark .rs-notification {
   z-index: 1300 !important;
 }
 body.rs-theme-light .rs-modal-backdrop,
 body.rs-theme-dark .rs-modal-backdrop {
   z-index: 1290 !important;
+}
+.fe-grid {
+  width: 100%;
+  min-width: 0;
 }
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -126,7 +145,4 @@ body.rs-theme-dark .rs-modal-backdrop {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
-}
-._container_e6226_1 {
-  display: none !important;
 }

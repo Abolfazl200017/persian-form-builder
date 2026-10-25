@@ -20,6 +20,25 @@ import {
   PersianText,
   SectionTitle,
   SubmitButton,
+  ShadcnInput,
+  ShadcnTextarea,
+  ShadcnSelect,
+  ShadcnCheckbox,
+  ShadcnRadioGroup,
+  ShadcnSwitch,
+  ShadcnCard,
+  ShadcnBadge,
+  ShadcnAlert,
+  ShadcnProgress,
+  ShadcnButton,
+  ShadcnDatePicker,
+  ShadcnCalendar,
+  ShadcnCombobox,
+  ShadcnSlider,
+  ShadcnLabel,
+  ShadcnTooltip,
+  ShadcnSeparator,
+  ShadcnDialog,
   ViewerWrapper,
 } from './components';
 import { FormGrid } from './grid';
@@ -47,6 +66,141 @@ const textProps = {
   ...gridSpanProps,
 };
 const definitions = [
+  define(ShadcnInput, 'ShadcnInput')
+    .name('ورودی متن')
+    .category('ورودی‌ها')
+    .props({ ...textProps }),
+  define(ShadcnTextarea, 'ShadcnTextarea')
+    .name('ناحیه متن')
+    .category('ورودی‌ها')
+    .props({ ...textProps }),
+  define(ShadcnSelect, 'ShadcnSelect')
+    .name('فهرست انتخاب')
+    .category('ورودی‌ها')
+    .props({
+      value: string.valued.uncontrolledValue(''),
+      label: string.default('انتخاب گزینه').named('عنوان'),
+      options: string.default('گزینه اول\\nگزینه دوم').named('گزینه‌ها'),
+      disabled: disabled.default(false).named('غیرفعال'),
+      onChange: event,
+      ...gridSpanProps,
+    }),
+  define(ShadcnCheckbox, 'ShadcnCheckbox')
+    .name('چک‌باکس')
+    .category('ورودی‌ها')
+    .props({
+      value: string.valued.uncontrolledValue('false'),
+      label: string.default('تأیید می‌کنم').named('عنوان'),
+      disabled: disabled.default(false),
+      onChange: event,
+      ...gridSpanProps,
+    }),
+  define(ShadcnRadioGroup, 'ShadcnRadioGroup')
+    .name('گروه رادیویی')
+    .category('ورودی‌ها')
+    .props({
+      value: string.valued.uncontrolledValue(''),
+      label: string.default('انتخاب گزینه').named('عنوان'),
+      options: string.default('گزینه اول\\nگزینه دوم').named('گزینه‌ها'),
+      disabled: disabled.default(false),
+      onChange: event,
+      ...gridSpanProps,
+    }),
+  define(ShadcnSwitch, 'ShadcnSwitch')
+    .name('کلید روشن/خاموش')
+    .category('ورودی‌ها')
+    .props({
+      value: string.valued.uncontrolledValue('false'),
+      label: string.default('فعال').named('عنوان'),
+      disabled: disabled.default(false),
+      onChange: event,
+      ...gridSpanProps,
+    }),
+  define(ShadcnDatePicker, 'ShadcnDatePicker')
+    .name('انتخاب‌گر تاریخ')
+    .category('ورودی‌ها')
+    .props({ ...textProps }),
+  define(ShadcnCalendar, 'ShadcnCalendar')
+    .name('تقویم')
+    .category('ورودی‌ها')
+    .props({ ...textProps }),
+  define(ShadcnCombobox, 'ShadcnCombobox')
+    .name('انتخاب‌گر جست‌وجو')
+    .category('ورودی‌ها')
+    .props({
+      value: string.valued.uncontrolledValue(''),
+      label: string.default('انتخاب گزینه').named('عنوان'),
+      options: string.default('گزینه اول\\nگزینه دوم').named('گزینه‌ها'),
+      disabled: disabled.default(false),
+      onChange: event,
+      ...gridSpanProps,
+    }),
+  define(ShadcnSlider, 'ShadcnSlider')
+    .name('لغزنده')
+    .category('ورودی‌ها')
+    .props({
+      value: string.valued.uncontrolledValue('50'),
+      label: string.default('مقدار').named('عنوان'),
+      disabled: disabled.default(false),
+      onChange: event,
+      ...gridSpanProps,
+    }),
+  define(ShadcnLabel, 'ShadcnLabel')
+    .name('برچسب')
+    .category('نمایش')
+    .props({ text: string.default('برچسب').named('متن'), ...gridSpanProps }),
+  define(ShadcnTooltip, 'ShadcnTooltip')
+    .name('راهنما')
+    .category('نمایش')
+    .props({
+      text: string.default('توضیحات راهنما').named('متن راهنما'),
+      label: string.default('راهنما').named('عنوان'),
+      ...gridSpanProps,
+    }),
+  define(ShadcnSeparator, 'ShadcnSeparator')
+    .name('جداکننده')
+    .category('چیدمان')
+    .props({ ...gridSpanProps }),
+  define(ShadcnButton, 'ShadcnButton')
+    .name('دکمه')
+    .category('عملیات')
+    .props({
+      label: string.default('ادامه').named('عنوان'),
+      disabled: disabled.default(false),
+      onClick: event,
+      ...gridSpanProps,
+    }),
+  define(ShadcnCard, 'ShadcnCard')
+    .name('کارت')
+    .category('چیدمان')
+    .kind('container')
+    .props({ children: node, ...gridSpanProps }),
+  define(ShadcnDialog, 'ShadcnDialog')
+    .name('پنجره محاوره‌ای')
+    .category('چیدمان')
+    .kind('container')
+    .props({
+      label: string.default('باز کردن پنجره').named('عنوان دکمه'),
+      children: node,
+      ...gridSpanProps,
+    }),
+  define(ShadcnBadge, 'ShadcnBadge')
+    .name('نشان')
+    .category('نمایش')
+    .props({ text: string.default('نشان').named('متن'), ...gridSpanProps }),
+  define(ShadcnAlert, 'ShadcnAlert')
+    .name('پیام')
+    .category('بازخورد')
+    .props({ text: string.default('پیام').named('متن'), ...gridSpanProps }),
+  define(ShadcnProgress, 'ShadcnProgress')
+    .name('نوار پیشرفت')
+    .category('بازخورد')
+    .props({
+      value: oneOf(...Array.from({ length: 101 }, (_, i) => String(i)))
+        .default('50')
+        .named('درصد'),
+      ...gridSpanProps,
+    }),
   define(PersianText, 'PersianText')
     .name('ورودی متن')
     .category('ورودی‌ها')

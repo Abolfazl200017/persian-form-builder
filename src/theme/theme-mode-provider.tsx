@@ -1,8 +1,8 @@
 'use client';
 
-import { createContext, useCallback, useContext, useMemo, useState } from 'react';
-import { CssBaseline, ThemeProvider } from '@mui/material';
-import { createAppTheme, type ThemeMode } from './theme';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+
+export type ThemeMode = 'light' | 'dark';
 
 type ThemeModeContextValue = {
   mode: ThemeMode;
@@ -17,15 +17,15 @@ export function ThemeModeProvider({ children }: { children: React.ReactNode }) {
     () => setMode((current) => (current === 'light' ? 'dark' : 'light')),
     [],
   );
-  const theme = useMemo(() => createAppTheme(mode), [mode]);
   const value = useMemo(() => ({ mode, toggleMode }), [mode, toggleMode]);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', mode === 'dark');
+  }, [mode]);
 
   return (
     <ThemeModeContext.Provider value={value}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        {children}
-      </ThemeProvider>
+      <div className={mode === 'dark' ? 'dark min-h-dvh' : 'min-h-dvh'}>{children}</div>
     </ThemeModeContext.Provider>
   );
 }

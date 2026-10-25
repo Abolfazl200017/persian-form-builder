@@ -1,16 +1,14 @@
 'use client';
-
 import Link from 'next/link';
 import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FormProvider, useForm } from 'react-hook-form';
-import { Box, Button, Card, CardContent, Snackbar, Stack, Typography } from '@mui/material';
+import { Button, Card, CardContent } from '@/components/ui';
 import { INITIAL_FORM_DRAFT, formDraftSchema, type FormDraft } from '../domain/form-draft';
 import { parseFormDocument } from '../domain/form-document';
 import { newFormJson } from '../domain/new-form';
 import { FormDesigner } from './form-designer';
 import { FormMetadataFields } from './form-metadata-fields';
-
 export function AddFormView() {
   const [schema, setSchema] = useState(newFormJson);
   const [feedback, setFeedback] = useState('');
@@ -19,7 +17,6 @@ export function AddFormView() {
     defaultValues: INITIAL_FORM_DRAFT,
     mode: 'onTouched',
   });
-
   function submitForm(data: FormDraft) {
     try {
       parseFormDocument(schema);
@@ -36,62 +33,44 @@ export function AddFormView() {
       setFeedback('ساختار فرم معتبر نیست.');
     }
   }
-
   return (
-    <Stack spacing={3}>
-      <Stack spacing={0.75}>
-        <Button
-          component={Link}
+    <div className="grid gap-6">
+      <header className="grid gap-2">
+        <Link
           href="/forms"
-          size="small"
-          sx={{
-            alignSelf: 'flex-start',
-            minHeight: 0,
-            px: 0.5,
-            py: 0.5,
-            color: 'text.secondary',
-            fontWeight: 500,
-            '&:hover': { bgcolor: 'transparent', color: 'text.primary' },
-          }}
+          className="w-fit rounded-md px-2 py-1 text-sm text-muted-foreground hover:bg-muted"
         >
           بازگشت به فرم‌ها
-        </Button>
-        <Typography variant="h4" component="h1">
-          افزودن فرم
-        </Typography>
-        <Typography color="text.secondary">
+        </Link>
+        <h1 className="text-2xl font-bold">افزودن فرم</h1>
+        <p className="text-muted-foreground">
           اطلاعات پایه فرم را وارد کنید و سپس طرح آن را در طراح بسازید.
-        </Typography>
-      </Stack>
-
+        </p>
+      </header>
       <FormProvider {...methods}>
-        <Box component="form" id="add-form" noValidate onSubmit={methods.handleSubmit(submitForm)}>
+        <form id="add-form" noValidate onSubmit={methods.handleSubmit(submitForm)}>
           <Card>
-            <CardContent sx={{ p: { xs: 2, md: 2.5 }, '&:last-child': { pb: { xs: 2, md: 2.5 } } }}>
-              <Typography variant="subtitle1" component="h2" sx={{ mb: 2 }}>
-                اطلاعات فرم
-              </Typography>
+            <CardContent className="grid gap-5 p-4 md:p-6">
+              <h2 className="font-semibold">اطلاعات فرم</h2>
               <FormMetadataFields />
             </CardContent>
           </Card>
-        </Box>
+        </form>
       </FormProvider>
-
       <FormDesigner onSchemaChange={setSchema} />
-
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', pt: 1 }}>
-        <Button type="submit" form="add-form" variant="contained">
+      <div className="flex justify-end">
+        <Button type="submit" form="add-form">
           ثبت فرم
         </Button>
-      </Box>
-
-      <Snackbar
-        open={!!feedback}
-        autoHideDuration={3000}
-        onClose={() => setFeedback('')}
-        message={feedback}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      />
-    </Stack>
+      </div>
+      {feedback && (
+        <p
+          role="status"
+          className="fixed bottom-4 left-1/2 z-50 -translate-x-1/2 rounded-md border border-border bg-card px-4 py-3 text-sm shadow-lg"
+        >
+          {feedback}
+        </p>
+      )}
+    </div>
   );
 }

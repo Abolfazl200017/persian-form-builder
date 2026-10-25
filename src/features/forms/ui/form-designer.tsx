@@ -1,48 +1,9 @@
 'use client';
-
 import dynamic from 'next/dynamic';
 import { useEffect, useRef, useState } from 'react';
-import { Box, Button, CircularProgress, Stack, Typography } from '@mui/material';
-import type { SxProps, Theme } from '@mui/material/styles';
 import { CollapseIcon, ExpandIcon } from '@/components/icons';
+import { Button } from '@/components/ui';
 import { EngineBoundary } from './engine-boundary';
-
-/** Keeps the designer edge-to-edge and tall enough to be usable. */
-const designerFrameSx: SxProps<Theme> = {
-  width: '100%',
-  height: { xs: 760, md: 'calc(100dvh - 420px)' },
-  minHeight: { md: 560 },
-  border: '1px solid',
-  borderColor: 'divider',
-  borderRadius: '6px',
-  bgcolor: 'background.paper',
-  overflow: 'hidden',
-  p: '8px',
-};
-
-const fullscreenWrapperSx: SxProps<Theme> = {
-  position: 'fixed',
-  inset: 0,
-  zIndex: 1200,
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 1,
-  p: { xs: 1, md: 1.5 },
-  bgcolor: 'background.default',
-};
-
-const fullscreenFrameSx: SxProps<Theme> = {
-  flex: 1,
-  minHeight: 0,
-  width: '100%',
-  border: '1px solid',
-  borderColor: 'divider',
-  borderRadius: '6px',
-  bgcolor: 'background.paper',
-  overflow: 'hidden',
-  p: '8px',
-};
-
 const DesignerRuntime = dynamic(
   async () => {
     const { configureMonaco } = await import('../engine/monaco');
@@ -52,19 +13,13 @@ const DesignerRuntime = dynamic(
   {
     ssr: false,
     loading: () => (
-      <Stack
-        sx={{ height: '100%', alignItems: 'center', justifyContent: 'center' }}
-        spacing={1.5}
-      >
-        <CircularProgress size={28} />
-        <Typography variant="body2" color="text.secondary">
-          در حال بارگذاری طراح…
-        </Typography>
-      </Stack>
+      <div className="grid h-full place-content-center gap-3 text-center text-sm text-muted-foreground">
+        <span className="mx-auto size-7 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        در حال بارگذاری طراح…
+      </div>
     ),
   },
 );
-
 export function FormDesigner({
   onSchemaChange,
 }: {
@@ -72,82 +27,59 @@ export function FormDesigner({
 }) {
   const [fullscreen, setFullscreen] = useState(false);
   const exitButtonRef = useRef<HTMLButtonElement>(null);
-
   useEffect(() => {
     if (!fullscreen) return;
     exitButtonRef.current?.focus();
-    const previousOverflow = document.body.style.overflow;
+    const old = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && !document.querySelector('.rs-modal')) setFullscreen(false);
+    const key = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !document.querySelector('.rs-modal')) setFullscreen(false);
     };
-    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('keydown', key);
     return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', key);
+      document.body.style.overflow = old;
     };
   }, [fullscreen]);
-
   return (
-    <Box component="section" aria-labelledby="designer-heading">
-      <Stack
-        direction="row"
-        sx={{
-          display: fullscreen ? 'none' : 'flex',
-          alignItems: 'center',
-          gap: 1,
-          mb: 1.5,
-        }}
-      >
-        <Typography id="designer-heading" variant="h6" component="h2">
+    <section
+      aria-labelledby="designer-heading"
+      className={
+        fullscreen ? 'fixed inset-0 z-[1200] flex flex-col gap-2 bg-background p-2 md:p-3' : ''
+      }
+    >
+      <div className={`mb-3 flex items-center gap-2 ${fullscreen ? 'hidden' : ''}`}>
+        <h2 id="designer-heading" className="text-lg font-semibold">
           طراح فرم
-        </Typography>
-        <Button
-          size="small"
-          variant="outlined"
-          onClick={() => setFullscreen(true)}
-          startIcon={<ExpandIcon sx={{ fontSize: 17 }} />}
-          sx={{ ms: 'auto' }}
-        >
+        </h2>
+        <Button variant="outline" size="sm" className="ms-auto" onClick={() => setFullscreen(true)}>
+          <ExpandIcon className="size-4" />
           تمام‌صفحه
         </Button>
-      </Stack>
-
-      <Box sx={fullscreen ? fullscreenWrapperSx : undefined}>
-        <Stack
-          direction="row"
-          sx={{
-            display: fullscreen ? 'flex' : 'none',
-            alignItems: 'center',
-            gap: 1,
-            px: 0.5,
-          }}
-        >
-          <Typography variant="subtitle1" component="h2">
-            طراح فرم
-          </Typography>
+      </div>
+      {fullscreen && (
+        <div className="flex items-center gap-2 px-1">
+          <h2 className="font-semibold">طراح فرم</h2>
           <Button
             ref={exitButtonRef}
-            size="small"
-            variant="outlined"
+            variant="outline"
+            size="sm"
+            className="ms-auto"
             onClick={() => setFullscreen(false)}
-            startIcon={<CollapseIcon sx={{ fontSize: 17 }} />}
-            sx={{ ms: 'auto' }}
           >
+            <CollapseIcon className="size-4" />
             حالت پنجره
           </Button>
-        </Stack>
-
-        <EngineBoundary>
-          <Box
-            className="engine-host"
-            dir="rtl"
-            sx={fullscreen ? fullscreenFrameSx : designerFrameSx}
-          >
-            <DesignerRuntime onSchemaChange={onSchemaChange} />
-          </Box>
-        </EngineBoundary>
-      </Box>
-    </Box>
+        </div>
+      )}
+      <EngineBoundary>
+        <div
+          className={`engine-host min-w-0 overflow-hidden rounded-md border border-border bg-card p-2 ${fullscreen ? 'min-h-0 flex-1' : 'h-[760px] md:h-[calc(100dvh-420px)] md:min-h-[560px]'}`}
+          dir="rtl"
+        >
+          <DesignerRuntime onSchemaChange={onSchemaChange} />
+        </div>
+      </EngineBoundary>
+    </section>
   );
 }

@@ -1,13 +1,14 @@
-'use client';
 import Link from 'next/link';
-import { Button, Stack, Typography } from '@mui/material';
 export default function NotFound() {
   return (
-    <Stack spacing={2}>
-      <Typography variant="h4">صفحه پیدا نشد</Typography>
-      <Button component={Link} href="/" variant="contained">
+    <div className="grid justify-items-start gap-4">
+      <h1 className="text-2xl font-bold">صفحه پیدا نشد</h1>
+      <Link
+        href="/"
+        className="inline-flex min-h-9 items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+      >
         بازگشت به خانه
-      </Button>
-    </Stack>
+      </Link>
+    </div>
   );
 }

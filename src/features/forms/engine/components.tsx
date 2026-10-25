@@ -1,15 +1,14 @@
 'use client';
-import { forwardRef, useCallback, useRef, type CSSProperties, type ReactNode } from 'react';
 import {
-  Box,
-  Button,
-  Checkbox,
-  FormControlLabel,
-  FormHelperText,
-  Stack,
-  TextField,
-  Typography,
-} from '@mui/material';
+  forwardRef,
+  useCallback,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from 'react';
 import {
   useAriaErrorMessage,
   useComponentData,
@@ -17,31 +16,25 @@ import {
   type ErrorWrapperProps,
   type FormViewerWrapperComponentProps,
 } from '@react-form-builder/core';
-import { MuiLocalizationProvider } from '@react-form-builder/components-material-ui';
 import { toEnglishDigits, toPersianDigits } from '@/lib/digits';
 import { splitRequiredLabel } from '@/lib/labels';
+import { Button, Input, Label, Textarea, Select } from '@/components/ui';
 import { useGridItem } from './grid';
 import type { GridSpanProps } from './grid-math';
-import rtlStyles from './rtl.module.css';
 
 export function FieldLabel({ label }: { label: string }) {
   const { text, separator, required } = splitRequiredLabel(label);
-  if (!required) return <>{label}</>;
   return (
     <>
       {text}
       {separator}
-      <Box component="span" sx={{ color: 'error.main' }}>
-        *
-      </Box>
+      {required && <span className="text-destructive">*</span>}
     </>
   );
 }
-
 function labelNode(label?: string) {
   return label ? <FieldLabel label={label} /> : undefined;
 }
-
 export interface TextProps extends GridSpanProps {
   value?: string;
   onChange?: (value: string) => void;
@@ -54,7 +47,7 @@ export interface TextProps extends GridSpanProps {
   className?: string;
   style?: CSSProperties;
 }
-export function PersianText({
+function Field({
   value = '',
   onChange,
   label,
@@ -73,23 +66,38 @@ export function PersianText({
   useGridItem(rootRef, false, { mobileSpan, tabletSpan, desktopSpan });
   const error = useErrorMessage();
   return (
-    <TextField
-      ref={rootRef}
-      className={className}
-      style={style}
-      label={labelNode(label)}
-      placeholder={placeholder}
-      value={value}
-      onChange={(event) => onChange?.(event.target.value)}
-      disabled={disabled}
-      multiline={multiline}
-      minRows={multiline ? 3 : undefined}
-      type={inputType}
-      error={!!error}
-      helperText={error}
-      slotProps={{ input: { readOnly }, htmlInput: { dir: inputType === 'email' ? 'ltr' : 'rtl' } }}
-    />
+    <div ref={rootRef} className={`grid min-w-0 gap-2 py-1 ${className ?? ''}`} style={style}>
+      {label && <Label>{labelNode(label)}</Label>}
+      {multiline ? (
+        <Textarea
+          value={value}
+          onChange={(e) => onChange?.(e.target.value)}
+          placeholder={placeholder}
+          disabled={disabled}
+          readOnly={readOnly}
+          dir="rtl"
+        />
+      ) : (
+        <Input
+          type={inputType}
+          value={value}
+          onChange={(e) => onChange?.(e.target.value)}
+          placeholder={placeholder}
+          disabled={disabled}
+          readOnly={readOnly}
+          dir={inputType === 'email' ? 'ltr' : 'rtl'}
+        />
+      )}
+      {error && (
+        <span role="alert" className="text-xs text-destructive">
+          {error}
+        </span>
+      )}
+    </div>
   );
+}
+export function PersianText(props: TextProps) {
+  return <Field {...props} />;
 }
 export function DigitField({
   value = '',
@@ -112,38 +120,37 @@ export function DigitField({
   const canonical = toEnglishDigits(value);
   const display = amount ? canonical.replace(/\B(?=(\d{3})+(?!\d))/g, '٬') : canonical;
   return (
-    <TextField
-      ref={rootRef}
-      className={className}
-      style={style}
-      label={labelNode(label)}
-      placeholder={placeholder}
-      value={toPersianDigits(display)}
-      onChange={(event) => {
-        const next = toEnglishDigits(event.target.value).replace(/[٬,]/g, '');
-        if (/^\d*$/.test(next) && (!maxLength || next.length <= maxLength)) onChange?.(next);
-      }}
-      disabled={disabled}
-      error={!!error}
-      helperText={error}
-      slotProps={{
-        input: { readOnly },
-        htmlInput: { inputMode: 'numeric', dir: 'ltr', style: { textAlign: 'right' } },
-      }}
-    />
+    <div ref={rootRef} className={`grid min-w-0 gap-2 py-1 ${className ?? ''}`} style={style}>
+      {label && <Label>{labelNode(label)}</Label>}
+      <Input
+        value={toPersianDigits(display)}
+        onChange={(event) => {
+          const next = toEnglishDigits(event.target.value).replace(/[٬,]/g, '');
+          if (/^\d*$/.test(next) && (!maxLength || next.length <= maxLength)) onChange?.(next);
+        }}
+        placeholder={placeholder}
+        disabled={disabled}
+        readOnly={readOnly}
+        inputMode="numeric"
+        dir="ltr"
+        className="text-right"
+      />
+      {error && (
+        <span role="alert" className="text-xs text-destructive">
+          {error}
+        </span>
+      )}
+    </div>
   );
 }
 export function IranMobile(props: TextProps) {
-  const error = useErrorMessage();
-  return <DigitField {...props} maxLength={11} error={error} />;
+  return <DigitField {...props} maxLength={11} error={useErrorMessage()} />;
 }
 export function NationalId(props: TextProps) {
-  const error = useErrorMessage();
-  return <DigitField {...props} maxLength={10} error={error} />;
+  return <DigitField {...props} maxLength={10} error={useErrorMessage()} />;
 }
 export function PersianAmount(props: TextProps) {
-  const error = useErrorMessage();
-  return <DigitField {...props} amount error={error} />;
+  return <DigitField {...props} amount error={useErrorMessage()} />;
 }
 const fieldsWithInlineErrors = new Set([
   'PersianText',
@@ -152,8 +159,6 @@ const fieldsWithInlineErrors = new Set([
   'PersianAmount',
   'Consent',
 ]);
-
-/** Persian fields own their helper text; other controls use the engine error. */
 export function InlineErrorWrapper({ children, error }: ErrorWrapperProps) {
   const { model } = useComponentData();
   const aria = useAriaErrorMessage();
@@ -161,14 +166,13 @@ export function InlineErrorWrapper({ children, error }: ErrorWrapperProps) {
     <>
       {children}
       {error && !fieldsWithInlineErrors.has(model.type) && (
-        <FormHelperText error id={aria['aria-errormessage']} role="alert">
+        <p className="mt-1 text-xs text-destructive" id={aria['aria-errormessage']} role="alert">
           {error}
-        </FormHelperText>
+        </p>
       )}
     </>
   );
 }
-
 export interface ConsentProps extends GridSpanProps {
   value?: boolean;
   onChange?: (value: boolean) => void;
@@ -176,7 +180,6 @@ export interface ConsentProps extends GridSpanProps {
   disabled?: boolean;
   readOnly?: boolean;
 }
-
 export function Consent({
   value = false,
   onChange,
@@ -187,33 +190,32 @@ export function Consent({
   tabletSpan,
   desktopSpan,
 }: ConsentProps) {
-  const rootRef = useRef<HTMLDivElement>(null);
-  useGridItem(rootRef, false, { mobileSpan, tabletSpan, desktopSpan });
+  const ref = useRef<HTMLDivElement>(null);
+  useGridItem(ref, false, { mobileSpan, tabletSpan, desktopSpan });
   const error = useErrorMessage();
   return (
-    <Box ref={rootRef}>
-      <FormControlLabel
-        label={labelNode(label)}
-        control={
-          <Checkbox
-            checked={value}
-            onChange={(event) => {
-              if (!readOnly) onChange?.(event.target.checked);
-            }}
-            disabled={disabled}
-            slotProps={{ input: { 'aria-readonly': readOnly } }}
-          />
-        }
-      />
-      {error && <FormHelperText error>{error}</FormHelperText>}
-    </Box>
+    <div ref={ref} className="py-1">
+      <label className="inline-flex cursor-pointer items-center gap-2 text-sm">
+        <input
+          type="checkbox"
+          className="size-4 accent-primary"
+          checked={value}
+          disabled={disabled}
+          aria-readonly={readOnly}
+          onChange={(e) => {
+            if (!readOnly) onChange?.(e.target.checked);
+          }}
+        />
+        {labelNode(label ?? '')}
+      </label>
+      {error && <p className="mt-1 text-xs text-destructive">{error}</p>}
+    </div>
   );
 }
 export interface SectionTitleProps extends GridSpanProps {
   title?: string;
   description?: string;
 }
-
 export function SectionTitle({
   title,
   description,
@@ -221,17 +223,13 @@ export function SectionTitle({
   tabletSpan,
   desktopSpan,
 }: SectionTitleProps) {
-  const rootRef = useRef<HTMLDivElement>(null);
-  useGridItem(rootRef, false, { mobileSpan, tabletSpan, desktopSpan });
+  const ref = useRef<HTMLDivElement>(null);
+  useGridItem(ref, false, { mobileSpan, tabletSpan, desktopSpan });
   return (
-    <Box ref={rootRef} sx={{ mb: 1 }}>
-      <Typography variant="h5" gutterBottom>
-        {title}
-      </Typography>
-      <Typography color="text.secondary" variant="body2">
-        {description}
-      </Typography>
-    </Box>
+    <div ref={ref} className="mb-2">
+      <h2 className="text-xl font-semibold">{title}</h2>
+      <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+    </div>
   );
 }
 export interface SubmitButtonProps extends GridSpanProps {
@@ -240,7 +238,6 @@ export interface SubmitButtonProps extends GridSpanProps {
   disabled?: boolean;
   readOnly?: boolean;
 }
-
 export function SubmitButton({
   label,
   onClick,
@@ -250,16 +247,10 @@ export function SubmitButton({
   tabletSpan,
   desktopSpan,
 }: SubmitButtonProps) {
-  const rootRef = useRef<HTMLButtonElement>(null);
-  useGridItem(rootRef, false, { mobileSpan, tabletSpan, desktopSpan });
+  const ref = useRef<HTMLButtonElement>(null);
+  useGridItem(ref, false, { mobileSpan, tabletSpan, desktopSpan });
   return (
-    <Button
-      ref={rootRef}
-      type="button"
-      variant="contained"
-      onClick={onClick}
-      disabled={disabled || readOnly}
-    >
+    <Button ref={ref} type="button" onClick={onClick} disabled={disabled || readOnly}>
       {label}
     </Button>
   );
@@ -269,7 +260,6 @@ export interface FormSectionProps extends GridSpanProps {
   className?: string;
   style?: CSSProperties;
 }
-
 export const FormSection = forwardRef<HTMLDivElement, FormSectionProps>(function FormSection(
   { children, className, style, mobileSpan, tabletSpan, desktopSpan },
   forwardedRef,
@@ -285,25 +275,424 @@ export const FormSection = forwardRef<HTMLDivElement, FormSectionProps>(function
     [forwardedRef],
   );
   return (
-    <Stack ref={setRef} className={className} style={style} spacing={2} data-fe-grid-container="">
+    <div
+      ref={setRef}
+      className={`flex flex-col gap-4 ${className ?? ''}`}
+      style={style}
+      data-fe-grid-container=""
+    >
       {children}
-    </Stack>
+    </div>
   );
 });
-export function ViewerWrapper({ children, language }: FormViewerWrapperComponentProps) {
+export function ViewerWrapper({ children }: FormViewerWrapperComponentProps) {
   return (
-    <MuiLocalizationProvider language={language}>
-      <Box
-        className={rtlStyles.rtl}
-        dir="rtl"
-        sx={{
-          '& > div': { gap: 2 },
-          '& .MuiTextField-root': { my: 1 },
-          '& .MuiButton-root': { my: 1 },
-        }}
+    <div className="grid gap-4" dir="rtl">
+      {children}
+    </div>
+  );
+}
+
+export function ShadcnInput(props: TextProps) {
+  return <PersianText {...props} />;
+}
+export function ShadcnTextarea(props: TextProps) {
+  return <Field {...props} multiline />;
+}
+export interface ChoiceProps extends GridSpanProps {
+  value?: string;
+  onChange?: (value: string) => void;
+  label?: string;
+  options?: string;
+  disabled?: boolean;
+}
+function parseOptions(options?: string) {
+  return (options ?? 'گزینه اول\nگزینه دوم')
+    .split(/\n|,/)
+    .map((x) => x.trim())
+    .filter(Boolean);
+}
+export function ShadcnSelect({
+  value = '',
+  onChange,
+  label,
+  options,
+  disabled,
+  mobileSpan,
+  tabletSpan,
+  desktopSpan,
+}: ChoiceProps) {
+  const ref = useRef<HTMLDivElement>(null);
+  useGridItem(ref, false, { mobileSpan, tabletSpan, desktopSpan });
+  return (
+    <div ref={ref} className="grid gap-2 py-1">
+      {label && <Label>{labelNode(label)}</Label>}
+      <Select value={value} onChange={(e) => onChange?.(e.target.value)} disabled={disabled}>
+        {parseOptions(options).map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
+      </Select>
+    </div>
+  );
+}
+export function ShadcnCheckbox({
+  value = 'false',
+  onChange,
+  label,
+  disabled,
+  mobileSpan,
+  tabletSpan,
+  desktopSpan,
+}: ChoiceProps) {
+  const ref = useRef<HTMLDivElement>(null);
+  useGridItem(ref, false, { mobileSpan, tabletSpan, desktopSpan });
+  const checked = value === 'true';
+  return (
+    <div ref={ref} className="py-1">
+      <label className="inline-flex items-center gap-2 text-sm">
+        <input
+          type="checkbox"
+          className="size-4 accent-primary"
+          checked={checked}
+          disabled={disabled}
+          onChange={(e) => onChange?.(String(e.target.checked))}
+        />
+        {labelNode(label ?? '')}
+      </label>
+    </div>
+  );
+}
+export function ShadcnRadioGroup({
+  value = '',
+  onChange,
+  label,
+  options,
+  disabled,
+  mobileSpan,
+  tabletSpan,
+  desktopSpan,
+}: ChoiceProps) {
+  const ref = useRef<HTMLFieldSetElement>(null);
+  useGridItem(ref, false, { mobileSpan, tabletSpan, desktopSpan });
+  return (
+    <fieldset ref={ref} className="grid gap-2 py-1">
+      <legend className="mb-1 text-sm font-medium">{labelNode(label ?? '')}</legend>
+      {parseOptions(options).map((option) => (
+        <label key={option} className="inline-flex items-center gap-2 text-sm">
+          <input
+            type="radio"
+            className="size-4 accent-primary"
+            name={`radio-${label}`}
+            value={option}
+            checked={value === option}
+            disabled={disabled}
+            onChange={() => onChange?.(option)}
+          />
+          {option}
+        </label>
+      ))}
+    </fieldset>
+  );
+}
+export function ShadcnSwitch({
+  value = 'false',
+  onChange,
+  label,
+  disabled,
+  mobileSpan,
+  tabletSpan,
+  desktopSpan,
+}: ChoiceProps) {
+  const checked = value === 'true';
+  const ref = useRef<HTMLDivElement>(null);
+  useGridItem(ref, false, { mobileSpan, tabletSpan, desktopSpan });
+  return (
+    <div ref={ref}>
+      <label className="inline-flex items-center gap-2 text-sm">
+        <input
+          type="checkbox"
+          role="switch"
+          className="size-4 accent-primary"
+          checked={checked}
+          disabled={disabled}
+          onChange={(e) => onChange?.(String(e.target.checked))}
+        />
+        {labelNode(label ?? '')}
+      </label>
+    </div>
+  );
+}
+export interface ShadcnButtonProps extends GridSpanProps {
+  label?: string;
+  onClick?: () => void;
+  disabled?: boolean;
+}
+export function ShadcnButton({
+  label = 'دکمه',
+  onClick,
+  disabled,
+  mobileSpan,
+  tabletSpan,
+  desktopSpan,
+}: ShadcnButtonProps) {
+  const ref = useRef<HTMLButtonElement>(null);
+  useGridItem(ref, false, { mobileSpan, tabletSpan, desktopSpan });
+  return (
+    <Button ref={ref} onClick={onClick} disabled={disabled}>
+      {label}
+    </Button>
+  );
+}
+export function ShadcnDatePicker({
+  value = '',
+  onChange,
+  label,
+  disabled,
+  mobileSpan,
+  tabletSpan,
+  desktopSpan,
+}: TextProps) {
+  const ref = useRef<HTMLDivElement>(null);
+  useGridItem(ref, false, { mobileSpan, tabletSpan, desktopSpan });
+  return (
+    <div ref={ref} className="grid gap-2 py-1">
+      {label && <Label>{labelNode(label)}</Label>}
+      <Input
+        type="date"
+        value={value}
+        onChange={(e) => onChange?.(e.target.value)}
+        disabled={disabled}
+        dir="ltr"
+      />
+    </div>
+  );
+}
+
+export const ShadcnCalendar = ShadcnDatePicker;
+
+export function ShadcnCombobox({
+  value = '',
+  onChange,
+  label,
+  options,
+  disabled,
+  mobileSpan,
+  tabletSpan,
+  desktopSpan,
+}: ChoiceProps) {
+  const listId = useId();
+  const ref = useRef<HTMLDivElement>(null);
+  useGridItem(ref, false, { mobileSpan, tabletSpan, desktopSpan });
+  return (
+    <div ref={ref} className="grid gap-2 py-1">
+      {label && <Label>{labelNode(label)}</Label>}
+      <Input
+        list={listId}
+        value={value}
+        onChange={(event) => onChange?.(event.target.value)}
+        disabled={disabled}
+      />
+      <datalist id={listId}>
+        {parseOptions(options).map((option) => (
+          <option key={option} value={option} />
+        ))}
+      </datalist>
+    </div>
+  );
+}
+
+export function ShadcnSlider({
+  value = '50',
+  onChange,
+  label,
+  disabled,
+  mobileSpan,
+  tabletSpan,
+  desktopSpan,
+}: ChoiceProps & { value?: string | number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useGridItem(ref, false, { mobileSpan, tabletSpan, desktopSpan });
+  return (
+    <div ref={ref} className="grid gap-2 py-1">
+      {label && <Label>{labelNode(label)}</Label>}
+      <Input
+        type="range"
+        value={value}
+        disabled={disabled}
+        onChange={(event) => onChange?.(event.target.value)}
+        className="h-2 cursor-pointer border-0 px-0 shadow-none accent-primary"
+      />
+    </div>
+  );
+}
+
+export function ShadcnLabel({
+  text = '',
+  mobileSpan,
+  tabletSpan,
+  desktopSpan,
+}: ShadcnContainerProps) {
+  const ref = useRef<HTMLSpanElement>(null);
+  useGridItem(ref, false, { mobileSpan, tabletSpan, desktopSpan });
+  return (
+    <span ref={ref} className="text-sm font-medium leading-none">
+      {text}
+    </span>
+  );
+}
+export function ShadcnTooltip({
+  text = '',
+  label,
+  mobileSpan,
+  tabletSpan,
+  desktopSpan,
+}: ShadcnContainerProps & { label?: string }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  useGridItem(ref, false, { mobileSpan, tabletSpan, desktopSpan });
+  return (
+    <span
+      ref={ref}
+      title={text}
+      className="cursor-help underline decoration-dotted underline-offset-4"
+    >
+      {label || text}
+    </span>
+  );
+}
+export function ShadcnSeparator({ mobileSpan, tabletSpan, desktopSpan }: GridSpanProps) {
+  const ref = useRef<HTMLHRElement>(null);
+  useGridItem(ref, false, { mobileSpan, tabletSpan, desktopSpan });
+  return <hr ref={ref} className="my-2 border-0 border-t border-border" />;
+}
+export interface ShadcnContainerProps extends GridSpanProps {
+  children?: ReactNode;
+  className?: string;
+  text?: string;
+}
+export const ShadcnCard = forwardRef<HTMLDivElement, ShadcnContainerProps>(function ShadcnCard(
+  { children, className, mobileSpan, tabletSpan, desktopSpan },
+  ref,
+) {
+  const local = useRef<HTMLDivElement>(null);
+  useGridItem(local, true, { mobileSpan, tabletSpan, desktopSpan });
+  const setRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      local.current = node;
+      if (typeof ref === 'function') ref(node);
+      else if (ref) ref.current = node;
+    },
+    [ref],
+  );
+  return (
+    <div
+      ref={setRef}
+      data-fe-grid-container=""
+      className={`rounded-lg border border-border bg-card p-4 text-card-foreground shadow-sm ${className ?? ''}`}
+    >
+      {children}
+    </div>
+  );
+});
+export function ShadcnBadge({
+  text = '',
+  mobileSpan,
+  tabletSpan,
+  desktopSpan,
+}: ShadcnContainerProps) {
+  const ref = useRef<HTMLSpanElement>(null);
+  useGridItem(ref, false, { mobileSpan, tabletSpan, desktopSpan });
+  return (
+    <span
+      ref={ref}
+      className="inline-flex w-fit items-center rounded-full border border-border bg-muted px-2.5 py-0.5 text-xs font-semibold"
+    >
+      {text}
+    </span>
+  );
+}
+export function ShadcnAlert({
+  text = '',
+  mobileSpan,
+  tabletSpan,
+  desktopSpan,
+}: ShadcnContainerProps) {
+  const ref = useRef<HTMLDivElement>(null);
+  useGridItem(ref, false, { mobileSpan, tabletSpan, desktopSpan });
+  return (
+    <div
+      ref={ref}
+      role="status"
+      className="rounded-md border border-border bg-muted/50 p-4 text-sm"
+    >
+      {text}
+    </div>
+  );
+}
+export function ShadcnProgress({
+  value = 0,
+  mobileSpan,
+  tabletSpan,
+  desktopSpan,
+}: ShadcnContainerProps & { value?: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useGridItem(ref, false, { mobileSpan, tabletSpan, desktopSpan });
+  return (
+    <div
+      ref={ref}
+      role="progressbar"
+      aria-valuenow={value}
+      className="h-2 w-full overflow-hidden rounded-full bg-muted"
+    >
+      <div
+        className="h-full bg-primary"
+        style={{ width: `${Math.max(0, Math.min(100, value))}%` }}
+      />
+    </div>
+  );
+}
+
+export function ShadcnDialog({
+  children,
+  label = 'باز کردن پنجره',
+  mobileSpan,
+  tabletSpan,
+  desktopSpan,
+}: ShadcnContainerProps & { label?: string }) {
+  const [open, setOpen] = useState(false);
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
+  useGridItem(rootRef, false, { mobileSpan, tabletSpan, desktopSpan });
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    if (open && !dialog.open) dialog.showModal();
+    if (!open && dialog.open) dialog.close();
+  }, [open]);
+  return (
+    <div ref={rootRef}>
+      <Button type="button" onClick={() => setOpen(true)}>
+        {label}
+      </Button>
+      <dialog
+        ref={dialogRef}
+        onClose={() => setOpen(false)}
+        className="fixed inset-0 m-auto max-h-[min(85dvh,48rem)] w-[min(92vw,40rem)] overflow-auto rounded-lg border border-border bg-card p-0 text-card-foreground shadow-xl backdrop:bg-black/50"
       >
-        {children}
-      </Box>
-    </MuiLocalizationProvider>
+        <div className="flex items-center justify-end border-b border-border p-3">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => dialogRef.current?.close()}
+            aria-label="بستن پنجره"
+          >
+            ×
+          </Button>
+        </div>
+        <div className="p-5">{children}</div>
+      </dialog>
+    </div>
   );
 }

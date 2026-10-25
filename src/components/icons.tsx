@@ -1,96 +1,51 @@
-import type { SvgIconProps } from '@mui/material/SvgIcon';
-import SvgIcon from '@mui/material/SvgIcon';
-
-export function PlusIcon(props: SvgIconProps) {
+import type { SVGProps } from 'react';
+type IconProps = SVGProps<SVGSVGElement>;
+function Icon({ children, ...props }: IconProps & { children: React.ReactNode }) {
   return (
-    <SvgIcon viewBox="0 0 20 20" {...props}>
-      <path
-        d="M10 4v12M4 10h12"
-        fill="none"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeWidth="1.8"
-      />
-    </SvgIcon>
+    <svg
+      viewBox="0 0 24 24"
+      width="1em"
+      height="1em"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      {...props}
+    >
+      {children}
+    </svg>
   );
 }
-
-export function FormIcon(props: SvgIconProps) {
-  return (
-    <SvgIcon viewBox="0 0 22 22" {...props}>
-      <path
-        d="M5 2.75h7l4 4V19a.75.75 0 0 1-.75.75h-10A.75.75 0 0 1 4.5 19V3.5A.75.75 0 0 1 5.25 2.75Z"
-        fill="none"
-        stroke="currentColor"
-        strokeLinejoin="round"
-        strokeWidth="1.4"
-      />
-      <path
-        d="M12 2.75v4.5h4M8 12h6M8 15h4"
-        fill="none"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeWidth="1.4"
-      />
-    </SvgIcon>
-  );
-}
-
-export function SunIcon(props: SvgIconProps) {
-  return (
-    <SvgIcon viewBox="0 0 24 24" {...props}>
-      <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" strokeWidth="1.8" />
-      <path
-        d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"
-        fill="none"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeWidth="1.8"
-      />
-    </SvgIcon>
-  );
-}
-
-export function MoonIcon(props: SvgIconProps) {
-  return (
-    <SvgIcon viewBox="0 0 24 24" {...props}>
-      <path
-        d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"
-        fill="none"
-        stroke="currentColor"
-        strokeLinejoin="round"
-        strokeWidth="1.8"
-      />
-    </SvgIcon>
-  );
-}
-
-export function ExpandIcon(props: SvgIconProps) {
-  return (
-    <SvgIcon viewBox="0 0 24 24" {...props}>
-      <path
-        d="M9 4H4v5M15 4h5v5M9 20H4v-5M15 20h5v-5"
-        fill="none"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.8"
-      />
-    </SvgIcon>
-  );
-}
-
-export function CollapseIcon(props: SvgIconProps) {
-  return (
-    <SvgIcon viewBox="0 0 24 24" {...props}>
-      <path
-        d="M4 9h5V4M20 9h-5V4M4 15h5v5M20 15h-5v5"
-        fill="none"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.8"
-      />
-    </SvgIcon>
-  );
-}
+export const PlusIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M12 5v14M5 12h14" />
+  </Icon>
+);
+export const FormIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M6 3h8l4 4v14H6zM14 3v5h5M9 13h6M9 17h4" />
+  </Icon>
+);
+export const SunIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <circle cx="12" cy="12" r="4" />
+    <path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4m0-14.2-1.4 1.4M6.3 17.7l-1.4 1.4" />
+  </Icon>
+);
+export const MoonIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4 8.5 8.5 0 1 0 20 14.5Z" />
+  </Icon>
+);
+export const ExpandIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M9 4H4v5m11-5h5v5M9 20H4v-5m11 5h5v-5" />
+  </Icon>
+);
+export const CollapseIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M4 9h5V4m11 5h-5V4M4 15h5v5m11-5h-5v5" />
+  </Icon>
+);

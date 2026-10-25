@@ -1,57 +1,30 @@
 import type { Metadata } from 'next';
-import { Box, Card, Stack, Typography } from '@mui/material';
+import { Card, CardContent } from '@/components/ui';
 import { FormIcon } from '@/components/icons';
 import { CreateFormButton } from '@/features/forms/ui/create-form-button';
-
 export const metadata: Metadata = { title: 'فرم‌ها' };
-
 export default function FormsPage() {
   return (
-    <Stack spacing={3}>
-      <Stack
-        direction={{ xs: 'column', sm: 'row' }}
-        spacing={2}
-        sx={{ alignItems: { sm: 'center' }, justifyContent: 'space-between' }}
-      >
-        <Box>
-          <Typography variant="h4" component="h1">
-            فرم‌ها
-          </Typography>
-          <Typography color="text.secondary" sx={{ mt: 0.5 }}>
-            فرم‌های سازمان را در یک‌جا بسازید.
-          </Typography>
-        </Box>
+    <div className="grid gap-6">
+      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+        <div>
+          <h1 className="text-2xl font-bold">فرم‌ها</h1>
+          <p className="mt-1 text-muted-foreground">فرم‌های سازمان را در یک‌جا بسازید.</p>
+        </div>
         <CreateFormButton />
-      </Stack>
-
-      <Card sx={{ borderStyle: 'dashed', bgcolor: 'transparent' }}>
-        <Stack
-          spacing={1.5}
-          sx={{ alignItems: 'center', textAlign: 'center', px: 3, py: { xs: 6, md: 9 } }}
-        >
-          <Box
-            aria-hidden
-            sx={{
-              display: 'grid',
-              placeItems: 'center',
-              width: 48,
-              height: 48,
-              borderRadius: '6px',
-              bgcolor: 'action.selected',
-              color: 'primary.main',
-            }}
-          >
-            <FormIcon sx={{ fontSize: 26 }} />
-          </Box>
-          <Typography variant="h6" component="h2">
-            هنوز فرمی ساخته نشده است
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 440 }}>
+      </div>
+      <Card className="border-dashed bg-transparent">
+        <CardContent className="grid justify-items-center gap-3 px-6 py-16 text-center md:py-24">
+          <span className="grid size-12 place-items-center rounded-md bg-muted text-primary">
+            <FormIcon className="size-7" />
+          </span>
+          <h2 className="text-lg font-semibold">هنوز فرمی ساخته نشده است</h2>
+          <p className="max-w-md text-sm text-muted-foreground">
             با دکمه «ایجاد فرم» اولین فرم را بسازید؛ نام، کد و نوع فرم را تعیین می‌کنید و سپس با
             طراح بصری ادامه می‌دهید.
-          </Typography>
-        </Stack>
+          </p>
+        </CardContent>
       </Card>
-    </Stack>
+    </div>
   );
 }
