@@ -39,7 +39,7 @@ import {
   ShadcnLabel,
   ShadcnTooltip,
   ShadcnSeparator,
-  ShadcnDialog,
+  ShadcnModalRenderer,
   ViewerWrapper,
 } from './components';
 import { FormGrid } from './grid';
@@ -178,15 +178,10 @@ const definitions = [
     .category('چیدمان')
     .kind('container')
     .props({ children: node, ...gridSpanProps }),
-  define(ShadcnDialog, 'ShadcnDialog')
-    .name('پنجره محاوره‌ای')
-    .category('چیدمان')
-    .kind('container')
-    .props({
-      label: string.default('باز کردن پنجره').named('عنوان دکمه'),
-      children: node,
-      ...gridSpanProps,
-    }),
+  define(ShadcnModalRenderer, 'ShadcnModalRenderer')
+    .name('نمایشگر مودال')
+    .componentRole('modal')
+    .hideFromComponentPalette(),
   define(ShadcnBadge, 'ShadcnBadge')
     .name('نشان')
     .category('نمایش')
@@ -317,12 +312,15 @@ const persianComponentLibrary: Record<string, ComponentLibraryDescription> = {
   },
 };
 
-export const builderView = new BuilderView(componentMetadata)
-  .withTemplates([])
-  .withViewerWrapper(ViewerWrapper);
+export function createBuilderView(templateNames: string[] = []) {
+  const view = new BuilderView(componentMetadata)
+    .withTemplates(templateNames)
+    .withViewerWrapper(ViewerWrapper);
 
-for (const description of libraryDescriptions) {
-  builderView.withComponentLibraryDescription(description);
+  for (const description of libraryDescriptions) {
+    view.withComponentLibraryDescription(description);
+  }
+  // Apply the project's wording last so it overrides vendor descriptions.
+  view.withComponentLibraryDescription(persianComponentLibrary);
+  return view;
 }
-// Apply the project's wording last so it overrides vendor descriptions.
-builderView.withComponentLibraryDescription(persianComponentLibrary);

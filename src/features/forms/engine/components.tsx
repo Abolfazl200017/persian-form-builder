@@ -5,10 +5,10 @@ import {
   useEffect,
   useId,
   useRef,
-  useState,
   type CSSProperties,
   type ReactNode,
 } from 'react';
+import { createPortal } from 'react-dom';
 import {
   useAriaErrorMessage,
   useComponentData,
@@ -455,7 +455,7 @@ export function ShadcnButton({
   const ref = useRef<HTMLButtonElement>(null);
   useGridItem(ref, false, { mobileSpan, tabletSpan, desktopSpan });
   return (
-    <Button ref={ref} onClick={onClick} disabled={disabled}>
+    <Button ref={ref} type="button" onClick={onClick} disabled={disabled}>
       {label}
     </Button>
   );
@@ -641,46 +641,55 @@ export function ShadcnProgress({
   );
 }
 
-export function ShadcnDialog({
+/** FormEngine's Modal component delegates its overlay to the model with the `modal` role. */
+export function ShadcnModalRenderer({
+  open,
+  handleClose,
   children,
-  label = 'باز کردن پنجره',
-  mobileSpan,
-  tabletSpan,
-  desktopSpan,
-}: ShadcnContainerProps & { label?: string }) {
-  const [open, setOpen] = useState(false);
-  const dialogRef = useRef<HTMLDialogElement>(null);
-  const rootRef = useRef<HTMLDivElement>(null);
-  useGridItem(rootRef, false, { mobileSpan, tabletSpan, desktopSpan });
+}: {
+  open: boolean;
+  handleClose: (data?: unknown) => void;
+  children?: ReactNode;
+}) {
   useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
-    if (open && !dialog.open) dialog.showModal();
-    if (!open && dialog.open) dialog.close();
-  }, [open]);
-  return (
-    <div ref={rootRef}>
-      <Button type="button" onClick={() => setOpen(true)}>
-        {label}
-      </Button>
-      <dialog
-        ref={dialogRef}
-        onClose={() => setOpen(false)}
-        className="glass-panel fixed inset-0 m-auto max-h-[min(85dvh,48rem)] w-[min(92vw,40rem)] overflow-auto p-0 text-card-foreground shadow-xl backdrop:bg-black/50"
+    if (!open) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') handleClose();
+    };
+    document.addEventListener('keydown', closeOnEscape);
+    return () => document.removeEventListener('keydown', closeOnEscape);
+  }, [open, handleClose]);
+
+  if (!open || typeof document === 'undefined') return null;
+
+  return createPortal(
+    <div
+      className="formengine-modal-backdrop fixed inset-0 z-[2000] flex items-center justify-center p-4"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) handleClose();
+      }}
+    >
+      <section
+        role="dialog"
+        aria-modal="true"
+        aria-label="پنجره محاوره‌ای"
+        dir="rtl"
+        className="glass-panel formengine-modal-surface relative flex max-h-[min(88dvh,56rem)] w-[min(94vw,48rem)] flex-col overflow-hidden border border-border text-card-foreground shadow-2xl"
       >
-        <div className="flex items-center justify-end border-b border-border p-3">
+        <div className="flex shrink-0 items-center justify-end border-b border-border p-2">
           <Button
             type="button"
             variant="ghost"
             size="sm"
-            onClick={() => dialogRef.current?.close()}
+            onClick={() => handleClose()}
             aria-label="بستن پنجره"
           >
             ×
           </Button>
         </div>
-        <div className="p-5">{children}</div>
-      </dialog>
-    </div>
+        <div className="min-h-0 overflow-auto p-5">{children}</div>
+      </section>
+    </div>,
+    document.body,
   );
 }

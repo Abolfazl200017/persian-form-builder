@@ -23,6 +23,10 @@
   --background: #edf3fb;
   --foreground: #1b1d22;
   --card: rgba(255, 255, 255, 0.68);
+  --surface-solid: #f7f9fc;
+  --modal-surface: #ffffff;
+  --modal-backdrop: rgba(246, 249, 255, 0.16);
+  --modal-backdrop-blur: 2px;
   --card-foreground: #1b1d22;
   --muted: rgba(255, 255, 255, 0.52);
   --muted-foreground: #6b7280;
@@ -41,6 +45,10 @@
   --background: #080a0f;
   --foreground: #f1f3f8;
   --card: rgba(19, 22, 30, 0.92);
+  --surface-solid: #171b24;
+  --modal-surface: #252c38;
+  --modal-backdrop: rgba(0, 0, 0, 0.26);
+  --modal-backdrop-blur: 2px;
   --card-foreground: #f1f3f8;
   --muted: rgba(160, 181, 219, 0.09);
   --muted-foreground: #a7b0c2;
@@ -50,7 +58,9 @@
   --primary-foreground: #07111e;
   --destructive: #ff8c82;
   --ring: #79b8ff;
-  --glass-shadow: 0 24px 76px rgba(0, 0, 0, 0.64), 0 0 36px rgba(49, 101, 178, 0.09), inset 0 1px 0 rgba(198, 220, 255, 0.1);
+  --glass-shadow:
+    0 24px 76px rgba(0, 0, 0, 0.64), 0 0 36px rgba(49, 101, 178, 0.09),
+    inset 0 1px 0 rgba(198, 220, 255, 0.1);
 }
 
 * {
@@ -115,6 +125,16 @@ pre {
   box-shadow: var(--glass-shadow);
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
   backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+}
+.formengine-modal-surface {
+  background-color: var(--modal-surface) !important;
+}
+.formengine-modal-backdrop {
+  background-color: var(--modal-backdrop);
+  direction: rtl;
+  font-family: 'Vazirmatn', Tahoma, sans-serif;
+  -webkit-backdrop-filter: blur(var(--modal-backdrop-blur)) saturate(150%);
+  backdrop-filter: blur(var(--modal-backdrop-blur)) saturate(150%);
 }
 .glass-chrome {
   background: color-mix(in srgb, var(--card) 78%, transparent);
@@ -201,7 +221,7 @@ pre {
 .engine-host .rs-modal-content,
 .engine-host .rs-popover,
 .engine-host .rs-picker-menu,
-.engine-host .rs-dropdown-menu,
+/* .engine-host .rs-dropdown-menu, */
 .engine-host .rs-table,
 .engine-host .rs-tabs,
 .engine-host .rs-nav,
@@ -237,10 +257,16 @@ body.rs-theme-dark .rs-dropdown-menu {
   -webkit-backdrop-filter: blur(22px) saturate(150%);
   backdrop-filter: blur(22px) saturate(150%);
 }
+body.rs-theme-light .rs-dropdown-menu,
+body.rs-theme-dark .rs-dropdown-menu,
+.engine-host .rs-dropdown-menu {
+  background-color: var(--surface-solid) !important;
+}
 body.rs-theme-light .rs-modal-backdrop,
 body.rs-theme-dark .rs-modal-backdrop {
-  -webkit-backdrop-filter: blur(7px);
-  backdrop-filter: blur(7px);
+  background-color: var(--modal-backdrop) !important;
+  -webkit-backdrop-filter: blur(var(--modal-backdrop-blur)) saturate(150%) !important;
+  backdrop-filter: blur(var(--modal-backdrop-blur)) saturate(150%) !important;
 }
 .engine-host .FE_FormContainer::-webkit-scrollbar {
   width: 8px;
@@ -257,7 +283,8 @@ body.rs-theme-light .rs-popover,
 body.rs-theme-light .rs-picker-menu,
 body.rs-theme-light .rs-dropdown-menu,
 body.rs-theme-light .rs-tooltip,
-body.rs-theme-light .rs-notification {
+body.rs-theme-light .rs-notification,
+.optimajet-formviewer {
   font-family: 'Vazirmatn', Tahoma, sans-serif !important;
 }
 body.rs-theme-dark .rs-modal,

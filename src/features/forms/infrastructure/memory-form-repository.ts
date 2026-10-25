@@ -1,6 +1,11 @@
 import type { FormRepository } from '../domain/repository';
 import { parseFormDocument } from '../domain/form-document';
-import { NEW_FORM_NAME, newFormJson } from '../domain/new-form';
+import {
+  DEFAULT_MODAL_TEMPLATE_NAME,
+  defaultModalTemplateJson,
+  NEW_FORM_NAME,
+  newFormJson,
+} from '../domain/new-form';
 
 /**
  * Session-only FormEngine storage. Nothing is written to localStorage: the
@@ -11,6 +16,7 @@ export class MemoryFormRepository implements FormRepository {
 
   constructor(initialJson: string = newFormJson) {
     this.forms.set(NEW_FORM_NAME, initialJson);
+    this.forms.set(DEFAULT_MODAL_TEMPLATE_NAME, defaultModalTemplateJson);
   }
 
   async list() {

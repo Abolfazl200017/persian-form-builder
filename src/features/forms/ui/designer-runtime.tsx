@@ -2,13 +2,13 @@
 
 import { useCallback, useEffect, useMemo } from 'react';
 import { FormBuilder } from '@react-form-builder/designer';
-import { builderView } from '../engine/registry';
+import { createBuilderView } from '../engine/registry';
 import { designerI18n } from '../engine/i18n';
 import { InlineErrorWrapper } from '../engine/components';
 import { validators } from '../engine/validators';
 import { createDesignerStorage } from '../engine/storage-adapter';
 import { MemoryFormRepository } from '../infrastructure/memory-form-repository';
-import { NEW_FORM_NAME } from '../domain/new-form';
+import { DEFAULT_MODAL_TEMPLATE_NAME, NEW_FORM_NAME } from '../domain/new-form';
 import { useThemeMode } from '@/theme/theme-mode-provider';
 
 /** Strings that FormEngine renders outside its translation system. */
@@ -88,6 +88,7 @@ export default function DesignerRuntime({
   useVendorTranslations();
   const repository = useMemo(() => new MemoryFormRepository(), []);
   const storage = useMemo(() => createDesignerStorage(repository), [repository]);
+  const view = useMemo(() => createBuilderView([DEFAULT_MODAL_TEMPLATE_NAME]), []);
   const getForm = useCallback(
     (name?: string) => repository.load(name?.trim() || NEW_FORM_NAME),
     [repository],
@@ -95,7 +96,7 @@ export default function DesignerRuntime({
 
   return (
     <FormBuilder
-      view={builderView}
+      view={view}
       theme={mode}
       customization={{ ToggleThemeButton: { hidden: true } }}
       getForm={getForm}
