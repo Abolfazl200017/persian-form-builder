@@ -1,7 +1,8 @@
 'use client';
 import { Controller, useFormContext } from 'react-hook-form';
 import { FORM_TYPES, type FormDraft, type FormType } from '../domain/form-draft';
-import { Input, Label, Select } from '@/components/ui';
+import { Autocomplete } from '@/components/autocomplete';
+import { Input, Label } from '@/components/ui';
 
 export const FORM_TYPE_LABELS: Record<FormType, string> = { mobile: 'موبایل', web: 'وب' };
 export function FormMetadataFields() {
@@ -56,13 +57,16 @@ export function FormMetadataFields() {
             <Label className="flex min-h-5 items-center" htmlFor="form-type">
               نوع فرم
             </Label>
-            <Select id="form-type" {...field}>
-              {FORM_TYPES.map((type) => (
-                <option key={type} value={type}>
-                  {FORM_TYPE_LABELS[type]}
-                </option>
-              ))}
-            </Select>
+            <Autocomplete
+              id="form-type"
+              ref={field.ref}
+              value={field.value}
+              onChange={field.onChange}
+              options={FORM_TYPES.map((type) => ({ value: type, label: FORM_TYPE_LABELS[type] }))}
+              clearable
+              aria-invalid={!!fieldState.error}
+              aria-label="نوع فرم"
+            />
             <div className="min-h-4 text-xs text-destructive" aria-live="polite">
               {fieldState.error?.message ?? <span aria-hidden="true">&nbsp;</span>}
             </div>

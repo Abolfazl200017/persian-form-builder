@@ -3,13 +3,13 @@ import {
   type ButtonHTMLAttributes,
   type InputHTMLAttributes,
   type TextareaHTMLAttributes,
-  type SelectHTMLAttributes,
   type HTMLAttributes,
   type LabelHTMLAttributes,
 } from 'react';
 
 const focus =
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background';
+
 export const Button = forwardRef<
   HTMLButtonElement,
   ButtonHTMLAttributes<HTMLButtonElement> & {
@@ -18,10 +18,11 @@ export const Button = forwardRef<
   }
 >(function Button({ className = '', variant = 'default', size = 'default', ...props }, ref) {
   const variants = {
-    default: 'bg-primary text-primary-foreground hover:brightness-95',
-    outline: 'border border-input bg-background hover:bg-muted',
-    ghost: 'hover:bg-muted',
-    destructive: 'bg-destructive text-white hover:brightness-95',
+    default: 'glass-button bg-primary text-primary-foreground hover:brightness-95',
+    outline:
+      'glass-chrome border border-input bg-white/30 hover:bg-white/50 dark:bg-white/5 dark:hover:bg-white/10',
+    ghost: 'hover:bg-white/40 dark:hover:bg-white/10',
+    destructive: 'glass-button bg-destructive text-white hover:brightness-95',
   };
   const sizes = { default: 'min-h-9 px-4 py-2', sm: 'min-h-8 px-3 py-1.5 text-sm' };
   return (
@@ -32,36 +33,33 @@ export const Button = forwardRef<
     />
   );
 });
-export function Input({ className = '', ...props }: InputHTMLAttributes<HTMLInputElement>) {
-  return (
-    <input
-      className={`flex h-10 w-full min-w-0 rounded-md border border-input bg-background px-3 py-2 text-right text-sm shadow-sm placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 ${focus} ${className}`}
-      {...props}
-      dir="rtl"
-    />
-  );
-}
+
+export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(
+  function Input({ className = '', ...props }, ref) {
+    return (
+      <input
+        ref={ref}
+        className={`glass-control flex h-10 w-full min-w-0 rounded-xl border border-input px-3 py-2 text-right text-sm placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 ${focus} ${className}`}
+        {...props}
+        dir="rtl"
+      />
+    );
+  },
+);
+
 export function Textarea({
   className = '',
   ...props
 }: TextareaHTMLAttributes<HTMLTextAreaElement>) {
   return (
     <textarea
-      className={`flex min-h-24 w-full rounded-md border border-input bg-background px-3 py-2 text-right text-sm shadow-sm placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 ${focus} ${className}`}
+      className={`glass-control flex min-h-24 w-full rounded-xl border border-input px-3 py-2 text-right text-sm placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 ${focus} ${className}`}
       {...props}
       dir="rtl"
     />
   );
 }
-export function Select({ className = '', ...props }: SelectHTMLAttributes<HTMLSelectElement>) {
-  return (
-    <select
-      className={`flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-right text-sm shadow-sm ${focus} ${className}`}
-      {...props}
-      dir="rtl"
-    />
-  );
-}
+
 export function Label({ className = '', ...props }: LabelHTMLAttributes<HTMLLabelElement>) {
   return (
     <label
@@ -70,26 +68,25 @@ export function Label({ className = '', ...props }: LabelHTMLAttributes<HTMLLabe
     />
   );
 }
+
 export function Card({ className = '', ...props }: HTMLAttributes<HTMLDivElement>) {
-  return (
-    <section
-      className={`rounded-lg border border-border bg-card text-card-foreground shadow-sm ${className}`}
-      {...props}
-    />
-  );
+  return <section className={`glass-panel text-card-foreground ${className}`} {...props} />;
 }
+
 export function CardContent({ className = '', ...props }: HTMLAttributes<HTMLDivElement>) {
   return <div className={`p-6 ${className}`} {...props} />;
 }
+
 export function Alert({ className = '', ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
       role="alert"
-      className={`rounded-md border border-destructive/40 bg-destructive/5 p-4 text-sm text-foreground ${className}`}
+      className={`glass-panel border-destructive/30 bg-destructive/5 p-4 text-sm text-foreground ${className}`}
       {...props}
     />
   );
 }
+
 export function Separator({ className = '' }: { className?: string }) {
   return <div role="separator" className={`h-px w-full bg-border ${className}`} />;
 }

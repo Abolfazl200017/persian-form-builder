@@ -10,14 +10,14 @@ export function LinkButton({
 }) {
   const style =
     variant === 'outline'
-      ? 'border border-input bg-background hover:bg-muted'
+      ? 'glass-chrome border border-input hover:bg-white/40 dark:hover:bg-white/10'
       : variant === 'ghost'
-        ? 'hover:bg-muted'
-        : 'bg-primary text-primary-foreground hover:brightness-95';
+        ? 'hover:bg-white/40 dark:hover:bg-white/10'
+        : 'glass-button bg-primary text-primary-foreground hover:brightness-95';
   return (
     <Link
       href={href}
-      className={`inline-flex min-h-9 items-center justify-center rounded-md px-4 py-2 text-sm font-medium ${style}`}
+      className={`inline-flex min-h-10 items-center justify-center rounded-xl px-4 py-2 text-sm font-semibold transition-all ${style}`}
     >
       {children}
     </Link>

@@ -18,7 +18,8 @@ import {
 } from '@react-form-builder/core';
 import { toEnglishDigits, toPersianDigits } from '@/lib/digits';
 import { splitRequiredLabel } from '@/lib/labels';
-import { Button, Input, Label, Textarea, Select } from '@/components/ui';
+import { Autocomplete } from '@/components/autocomplete';
+import { Button, Input, Label, Textarea } from '@/components/ui';
 import { useGridItem } from './grid';
 import type { GridSpanProps } from './grid-math';
 
@@ -306,39 +307,50 @@ export interface ChoiceProps extends GridSpanProps {
   value?: string;
   onChange?: (value: string) => void;
   label?: string;
-  options?: string;
+  options?: string[] | string;
   disabled?: boolean;
+  clearable?: boolean;
 }
-function parseOptions(options?: string) {
+function parseOptions(options?: string[] | string) {
+  if (Array.isArray(options)) return options.map((option) => String(option).trim()).filter(Boolean);
   return (options ?? 'گزینه اول\nگزینه دوم')
+    .replace(/\\n/g, '\n')
     .split(/\n|,/)
     .map((x) => x.trim())
     .filter(Boolean);
 }
-export function ShadcnSelect({
+function AutocompleteField({
   value = '',
   onChange,
   label,
   options,
   disabled,
+  clearable = true,
   mobileSpan,
   tabletSpan,
   desktopSpan,
 }: ChoiceProps) {
   const ref = useRef<HTMLDivElement>(null);
+  const id = useId();
   useGridItem(ref, false, { mobileSpan, tabletSpan, desktopSpan });
   return (
     <div ref={ref} className="grid gap-2 py-1">
-      {label && <Label>{labelNode(label)}</Label>}
-      <Select value={value} onChange={(e) => onChange?.(e.target.value)} disabled={disabled}>
-        {parseOptions(options).map((option) => (
-          <option key={option} value={option}>
-            {option}
-          </option>
-        ))}
-      </Select>
+      <div className="flex min-h-5 items-center">
+        {label && <Label htmlFor={`${id}-input`}>{labelNode(label)}</Label>}
+      </div>
+      <Autocomplete
+        id={`${id}-input`}
+        options={parseOptions(options)}
+        value={value}
+        onChange={(nextValue) => onChange?.(nextValue)}
+        clearable={clearable}
+        disabled={disabled}
+      />
     </div>
   );
+}
+export function ShadcnSelect({ ...props }: ChoiceProps) {
+  return <AutocompleteField {...props} />;
 }
 export function ShadcnCheckbox({
   value = 'false',
@@ -475,35 +487,8 @@ export function ShadcnDatePicker({
 
 export const ShadcnCalendar = ShadcnDatePicker;
 
-export function ShadcnCombobox({
-  value = '',
-  onChange,
-  label,
-  options,
-  disabled,
-  mobileSpan,
-  tabletSpan,
-  desktopSpan,
-}: ChoiceProps) {
-  const listId = useId();
-  const ref = useRef<HTMLDivElement>(null);
-  useGridItem(ref, false, { mobileSpan, tabletSpan, desktopSpan });
-  return (
-    <div ref={ref} className="grid gap-2 py-1">
-      {label && <Label>{labelNode(label)}</Label>}
-      <Input
-        list={listId}
-        value={value}
-        onChange={(event) => onChange?.(event.target.value)}
-        disabled={disabled}
-      />
-      <datalist id={listId}>
-        {parseOptions(options).map((option) => (
-          <option key={option} value={option} />
-        ))}
-      </datalist>
-    </div>
-  );
+export function ShadcnCombobox({ ...props }: ChoiceProps) {
+  return <AutocompleteField {...props} />;
 }
 
 export function ShadcnSlider({
@@ -592,7 +577,7 @@ export const ShadcnCard = forwardRef<HTMLDivElement, ShadcnContainerProps>(funct
     <div
       ref={setRef}
       data-fe-grid-container=""
-      className={`rounded-lg border border-border bg-card p-4 text-card-foreground shadow-sm ${className ?? ''}`}
+      className={`glass-panel p-4 text-card-foreground ${className ?? ''}`}
     >
       {children}
     </div>
@@ -681,7 +666,7 @@ export function ShadcnDialog({
       <dialog
         ref={dialogRef}
         onClose={() => setOpen(false)}
-        className="fixed inset-0 m-auto max-h-[min(85dvh,48rem)] w-[min(92vw,40rem)] overflow-auto rounded-lg border border-border bg-card p-0 text-card-foreground shadow-xl backdrop:bg-black/50"
+        className="glass-panel fixed inset-0 m-auto max-h-[min(85dvh,48rem)] w-[min(92vw,40rem)] overflow-auto p-0 text-card-foreground shadow-xl backdrop:bg-black/50"
       >
         <div className="flex items-center justify-end border-b border-border p-3">
           <Button

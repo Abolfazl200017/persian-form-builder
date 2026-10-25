@@ -16,9 +16,9 @@ Open `http://localhost:3000`. `/` is Home, `/forms` is Forms, and `/forms/new` c
 
 ## UI and theme
 
-- `src/components/ui.tsx` contains the local shadcn-style Button, Input, Textarea, Select, Label, Card, Alert, and Separator primitives.
-- Tailwind CSS 4 is configured through `postcss.config.mjs`; `src/app/globals.css` defines light/dark shadcn CSS variables, Vazirmatn typography, RTL defaults, and the Tailwind import.
-- The theme toggle applies the Tailwind `dark` class to both the panel and embedded form controls.
+- `src/components/ui.tsx` contains the local shadcn-style Button, Input, Textarea, Label, Card, Alert, and Separator primitives; `src/components/autocomplete.tsx` provides the shared searchable dropdown.
+- Tailwind CSS 4 is configured through `postcss.config.mjs`; `src/app/globals.css` defines the light and dark glass themes, Vazirmatn typography, RTL defaults, and the Tailwind import.
+- The theme toggle applies the selected light or dark glass palette to the panel and embedded designer, including editor panels and portaled menus and dialogs.
 - The built-in responsive `FormGrid` takes mobile, tablet, and desktop column counts. `GridItem` and field span properties configure each child span. The same components follow the designer device mode and the preview viewport.
 - FormEngine's vendor designer editing chrome is supplied by `@react-form-builder/designer`, which includes its own RSuite-based editor UI. That vendor chrome cannot be restyled into shadcn component implementations through this project's component registry. The app pages and registered form controls use the local Tailwind components.
 
@@ -36,7 +36,7 @@ The designer and viewer share one registry in `src/features/forms/engine/registr
 | `SectionTitle`, `FormGrid`, `GridItem`, `FormSection`, `SubmitButton`                                  | Form layout and actions             |
 | `RichTextEditor`, `RsSignature`, `FastQR`, `GoogleMap`, print controls                                 | Specialized FormEngine add-ons      |
 
-Choice component options are entered as comma-separated or newline-separated text. `FormGrid` and per-control span options accept values from 1 to 12. The grid clamps spans to the active column count.
+Choice component options use FormEngine's editable string-array property, so designers can add and remove each option as a list item. Select and combobox controls filter options as the user types and can clear their selected value; clearing is enabled by default. Existing string values with comma or newline separators remain readable. `FormGrid` and per-control span options accept values from 1 to 12. The grid clamps spans to the active column count.
 
 The specialized FormEngine add-ons retain their own package renderers and styles. Google Maps needs its configured API key and network access for live map tiles; QR code generation uses a local WebAssembly asset. `src/config/resource-policy.ts` controls external resource access.
 

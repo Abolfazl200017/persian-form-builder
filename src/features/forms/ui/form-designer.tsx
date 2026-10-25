@@ -45,7 +45,7 @@ export function FormDesigner({
     <section
       aria-labelledby="designer-heading"
       className={
-        fullscreen ? 'fixed inset-0 z-[1200] flex flex-col gap-2 bg-background p-2 md:p-3' : ''
+        fullscreen ? 'glass-fullscreen fixed inset-0 z-[1200] flex flex-col gap-2 p-2 md:p-3' : ''
       }
     >
       <div className={`mb-3 flex items-center gap-2 ${fullscreen ? 'hidden' : ''}`}>
@@ -74,7 +74,7 @@ export function FormDesigner({
       )}
       <EngineBoundary>
         <div
-          className={`engine-host min-w-0 overflow-hidden rounded-md border border-border bg-card p-2 ${fullscreen ? 'min-h-0 flex-1' : 'h-[760px] md:h-[calc(100dvh-420px)] md:min-h-[560px]'}`}
+          className={`engine-host glass-frame min-w-0 overflow-hidden p-2 md:p-3 ${fullscreen ? 'min-h-0 flex-1' : 'h-[760px] md:h-[calc(100dvh-420px)] md:min-h-[560px]'}`}
           dir="rtl"
         >
           <DesignerRuntime onSchemaChange={onSchemaChange} />

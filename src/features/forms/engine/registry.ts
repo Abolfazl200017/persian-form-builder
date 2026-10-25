@@ -1,4 +1,5 @@
 import {
+  array,
   boolean,
   BuilderView,
   createView,
@@ -80,8 +81,9 @@ const definitions = [
     .props({
       value: string.valued.uncontrolledValue(''),
       label: string.default('انتخاب گزینه').named('عنوان'),
-      options: string.default('گزینه اول\\nگزینه دوم').named('گزینه‌ها'),
+      options: array.ofString.default(['گزینه اول', 'گزینه دوم']).named('گزینه‌ها'),
       disabled: disabled.default(false).named('غیرفعال'),
+      clearable: boolean.default(true).named('امکان پاک کردن مقدار'),
       onChange: event,
       ...gridSpanProps,
     }),
@@ -101,7 +103,7 @@ const definitions = [
     .props({
       value: string.valued.uncontrolledValue(''),
       label: string.default('انتخاب گزینه').named('عنوان'),
-      options: string.default('گزینه اول\\nگزینه دوم').named('گزینه‌ها'),
+      options: array.ofString.default(['گزینه اول', 'گزینه دوم']).named('گزینه‌ها'),
       disabled: disabled.default(false),
       onChange: event,
       ...gridSpanProps,
@@ -130,8 +132,9 @@ const definitions = [
     .props({
       value: string.valued.uncontrolledValue(''),
       label: string.default('انتخاب گزینه').named('عنوان'),
-      options: string.default('گزینه اول\\nگزینه دوم').named('گزینه‌ها'),
+      options: array.ofString.default(['گزینه اول', 'گزینه دوم']).named('گزینه‌ها'),
       disabled: disabled.default(false),
+      clearable: boolean.default(true).named('امکان پاک کردن مقدار'),
       onChange: event,
       ...gridSpanProps,
     }),

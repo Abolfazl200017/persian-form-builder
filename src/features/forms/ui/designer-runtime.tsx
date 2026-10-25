@@ -97,6 +97,7 @@ export default function DesignerRuntime({
     <FormBuilder
       view={builderView}
       theme={mode}
+      customization={{ ToggleThemeButton: { hidden: true } }}
       getForm={getForm}
       formName={NEW_FORM_NAME}
       formStorage={storage}
